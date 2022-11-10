@@ -1,0 +1,180 @@
+\documentclass{article}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[normalem]{ulem} % for strike through text
+\setlength{\headheight}{0in}
+
+\newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip/2}\leavevmode\\[0.05in]}
+\newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
+\pagestyle{fancy}
+\rhead{\today}
+\lhead{Daniel Mortensen}
+\chead{Homework 4}
+
+\begin{document}
+\noindent\underline{Problem 1}: Please prove the equation $F_{n+2} = 1 + \sum_{i=0}^n F_i$ is true in two ways: (1) using the Principle of Mathematical Induction, and (2) by a combinatorial argument.
+\statementsep
+\noindent\underline{Solution 1}: Solution 1 proves the equation $F_{n+2} = 1 + \sum_{i=0}^n F_i$ is true by the Principle of Mathematical Induction.
+\\[0.05in]\noindent{\it Claim: }$F_{n+2} = 1 + \sum_{i=0}^n F_i$
+\\[0.05in]\noindent{\it Proof: } The proof by induction includes both a base case and the inductive case.  The base case can be shown by first recognizing that $F_0 = 0$, $F_1 = 1$, and $F_2 = 1$. We observe that $F_2 = F_1 + F_0$, which proves the initial claim for the case base. Next we show that if the claim is true for $n$, then it is also true for $n+1$. Begin with the statement given in the claim such that
+\begin{equation*}
+F_{n+3} = 1 + \sum_{i=0}^{n+1} F_i
+\end{equation*}
+which can be expanded by pulling the $n+1$ value out of the sumation and rearranged such that
+\begin{equation*}\begin{aligned}
+F_{n+3} &= 1 + F_{n+1} + \sum_{i=0}^n F_i \\
+	    &= \left (1 + \sum_{i=0}^n F_i \right ) + F_{n+1}.
+\end{aligned}\end{equation*}
+Note that the left most term is equal to $F_{n+2}$ because we assume the statement from the claim to be true for the first $n$ values. This implies that
+\begin{equation*}\begin{aligned}
+F_{n+3} &= F_{n+2} + F_{n+1}
+\end{aligned}\end{equation*}
+which is the definition of the Fibonacci sequence.
+\statementsep
+\noindent\underline{Solution 2}: Solution 2 proves the equation $F_{n+2} = 1 + \sum_{i=0}^n F_i$ is true with a combinatorial argument.
+\\[0.05in]\noindent{\it Claim: }$F_{n+2} = 1 + \sum_{i=0}^n F_i$
+\\[0.05in]\noindent{\it Proof: } Consider a set of $n - 1$ partitions from an $n+1$ tiled board, where partition $i$ contains all possible tiling combinations of a board where the final ``2-tile'' occupies the $i+1$ and $i+2$ board tiles. Note that the $i^{\text{th}}$ partition contains the same number of ``open'' tiles as a table with $i$ tiles and therefore contains the same number of tiling combinations. Let $T_i$ represent the number of tiling combinations in an $i$-tiled board as defined in the class notes. The total number of combinations for each partition is then described as 
+\begin{equation*}
+    C = \sum_{i=0}^{n-1}T_i.
+\end{equation*}
+Additionally, from Theorem 10.3.4 in the notes we also know that $T_i = F_{i+1}$, which allows us to express the total number of combinations in terms of $F_i$ such that
+\begin{equation*}
+    C = \sum_{i=1}^{n}F_i.
+\end{equation*}
+Note that because $F_0 = 0$, we can also say that
+\begin{equation*}
+	C = \sum_{i=0}^nF_i.
+\end{equation*}
+Finally, the set of partitions mentioned so far only includes boards where a ``two-tile'' is present. The entire solution space can therefore be expressed as the set of all partitions and the board combination where all tiles are ``one-tiles''. Thus, the total number of tileing combinations for a $n + 1$ tiled board is $T_{i+1} = 1 + \sum_{i=0}^nF_i$, which is also implies that
+\begin{equation*}
+	F_{n+2} = 1 + \sum_{i=0}^nF_i
+\end{equation*}
+by Theorem 10.3.4.
+\problemsep
+\noindent\underline{Problem 2}: Please prove the equation $\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$ in two ways: (1) using a combinatorial argument, and (2) algebraically.
+\statementsep
+\noindent\underline{Solution 1}:  Solution 1 shows that the statement $\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$ is true using a combinatorial argument.
+\\[0.05in]\noindent{\it Claim: }$\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$
+\\[0.05in]\noindent{\it Proof: } Consider a scenario where a team of arbitrary size and a team captain are selected from $n$ candidates. A team is formed by partitioning the candidates into two groups, where the first group is on the team, and the second is not. For each entry in the candidate pool, the number of ways the applicants can be divided doubles, such that the number of possible teams is equal to $2^n$.  However, two teams with the same players and different captains are considered distinct. 
+\\[0.1in] \noindent Consider a paradigm where a captain is given and all possible teams they may lead are then selected. Because the captain is given, the candidate pool is redueced by one, such that each captain can lead only $2^{n-1}$ teams, therefore the total number of team-captain pairs is $n2^{n-1}$.  
+\\[0.1in] \noindent Consider a second paradigm where we compute how many teams can be formed with $i$ players. We would choose $i$ players from $n$ candidates, and then select one captain from $i$ players. The number of $i$ player teams can be expressed as $n \choose i$. For each team, there exists an additinoal $i$ combinations, as any player can serve as captain. Therefore, the number of $i$ player teams with a captain is ${n \choose i} i$. Because however, we are computing the number of {\it arbitrarily} sized teams with captain the total number of teams is expressed as $\sum_{i=0}^n {n\choose i}i$.
+\\[0.1in] \noindent Because the number of team-captain pairs can be expressed as both $n2^{n-1}$ and $\sum_{i=0}^n {n\choose i}i$, then $n2^{n-1} = \sum_{i=0}^n {n\choose i}i$.
+
+\statementsep
+\noindent\underline{Solution 2}: Solution 2 proves the relationship $\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$ algebraically.
+\\[0.05in]\noindent{\it Claim: }$\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$
+\\[0.05in]\noindent{\it Proof: } From the binomial theorem, we know that
+\begin{equation*}
+(x + y)^n = \sum_{i=0}^n {n \choose i} x^i y^{n - i}
+\end{equation*}
+which also implies that their derivatives are also equal such that
+\begin{equation*}\begin{aligned}
+         & \frac{d}{dx}\left [ (x + y)^n \right ] = \frac{d}{dx}\left [ \sum_{i=0}^n {n \choose i} x^i y^{n - i} \right ] \\
+\implies & n(x + y)^{n-1}                               = \sum_{i=0}^n {n \choose i}x^{i-1}y^{n-i}i
+\end{aligned}\end{equation*}
+Note that when $x,y=1$, the expression above implies that
+\begin{equation*}\begin{aligned}
+& n2^{n-1} = \sum_{i=0}^n{n \choose i} 1^{i-1}1^{n-i}i \\
+\implies & n2^{n-1} = \sum_{i=0}^n{n \choose i}i
+\end{aligned}\end{equation*}
+which proves that the relationship $\sum_{i= 0}^n\binom{n}{i}i = n2^{n-1}$ is true.
+\problemsep
+\noindent\underline{Problem 3:} Please prove that the $n^{\text{th}}$ Fibonacci number $F_n$ is given by the formula
+\begin{equation*}
+F_n = \frac{1}{\sqrt{5}}\left (\left ( \frac{1 + \sqrt{5}}{2} \right )^n - \left (\frac{1 - \sqrt{5}}{2} \right )^n \right ).
+\end{equation*}
+\statementsep
+\\[0.05in]\noindent{\it Claim: } $F_n = \frac{1}{\sqrt{5}}\left (\left ( \frac{1 + \sqrt{5}}{2} \right )^n - \left (\frac{1 - \sqrt{5}}{2} \right )^n \right ) $
+\\[0.05in]\noindent{\it Proof: } We will prove the statement given in the claim by the principle of strong mathematical induction, which has two parts: the base case and the inductive proof. For the base case, we will show that the statement given in the claim holds for $F_0 = 0$ and $F_1 = 1$. From the statement in the claim, we have 
+\begin{equation*}\begin{aligned}
+	F_0 &= \frac{1}{\sqrt{5}}\left (\left ( \frac{1 + \sqrt{5}}{2} \right )^0 - \left (\frac{1 - \sqrt{5}}{2} \right )^0 \right ) \\
+	F_0 &= \frac{1}{\sqrt{5}} (1 - 1 ) \\
+	F_0 &= 0
+\end{aligned}\end{equation*}
+and
+\begin{equation*}\begin{aligned}
+	         & F_1 = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^1 - \left (\frac{1 - \sqrt{5}}{2} \right )^1 \right ) \\
+	\implies & F_1 = \frac{1}{\sqrt{5}} \left (\frac{2\sqrt{5}}{2}\right ) \\
+	\implies & F_1 = 1
+\end{aligned}\end{equation*}
+which shows that the statement from the claim is true for the base case. Next, we show that if the claim is true for $n-1$ and $n-2$, then it is also true for $n$. Assuming that the claim is true for $n - 1$ and $n - 2$ implies that
+\begin{equation*}\begin{aligned}
+		 & F_{n+2} = F_{n+1} + F_{n} \\
+\implies & F_{n+2} = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n} - \left (\frac{1 - \sqrt{5}}{2} \right )^{n} \right ) + \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n+1} - \left (\frac{1 - \sqrt{5}}{2} \right )^{n+1} \right ) \\
+\implies & F_{n+2} = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n}\left [1 + \frac{1 + \sqrt{5}}{2} \right ] - \left (\frac{1 - \sqrt{5}}{2} \right )^{n}\left [ 1 + \frac{1 + \sqrt{5}}{2} \right ]  \right ) \\
+\implies & F_{n+2} = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n}\left [\frac{1 + 2\sqrt{5} + 5}{4} \right ] - \left (\frac{1 - \sqrt{5}}{2} \right )^{n}\left [\frac{1 + 2\sqrt{5} + 5}{4} \right ]  \right ) \\
+\implies & F_{n+2} = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n}\left [\frac{1 + \sqrt{5}}{2} \right ]^2 - \left (\frac{1 - \sqrt{5}}{2} \right )^{n}\left [\frac{1 - \sqrt{5}}{2} \right ]^2  \right ) \\
+\implies & F_{n+2} = \frac{1}{\sqrt{5}} \left (\left ( \frac{1 + \sqrt{5}}{2} \right )^{n+2} - \left (\frac{1 - \sqrt{5}}{2} \right )^{n+2} \right )
+\end{aligned}\end{equation*}
+which shows that the claim holds inductively.  Therefore, because the claim holds for both base cases and inductively, the claim is true.
+\problemsep
+\noindent\underline{Problem 4}: Please prove the identity $\displaystyle F_{n+1} = \sum_{i=0}^{\lfloor \frac{n}{2} \rfloor}{n - i \choose i}$
+\statementsep
+The claim will be proven by strong mathematical induction which has two parts: proving the claim is true for the $n$ and $n+1$ base case, and then proving the claim is true inductively. To show the claim holds for two bases cases, consider the cases where $n = 0$ and $n = 1$. When $n = 0$, 
+\begin{equation*}
+F_1 = \sum_{i=0}^0 {0 \choose 0} = 1.
+\end{equation*}
+When $n = 1$, then 
+\begin{equation*}
+F_2 = \sum_{i=0}^{\lfloor \frac{1}{2} \rfloor} {1 - i \choose i}  = {1 \choose 0} = 1.
+\end{equation*}
+Therefore, because the claim holds for $n = 0$ and $n = 1$, the first requirement for a proof by strong mathematical induction has been satisfied. The next step is to show that if the claim holds for $n$ and $n+1$, then it will also hold for $n+2$. Because the claim behaves differently when $n$ is even and odd, the inductive proof will be given for both cases.
+\\[0.1in] \noindent Consider the case when $n$ is even so that $\lfloor \frac{n+1}{2} \rfloor = \lfloor \frac{n}{2} \rfloor  = \frac{n}{2}$ and $\lfloor \frac{n-1}{2} \rfloor = \frac{n}{2}-1$ and consequently,
+\begin{equation*}\begin{aligned}
+F_n + F_{n-1} = \sum_{i=0}^{\lfloor \frac{n}{2}\rfloor} {n-i \choose i} + \sum_{i=0}^{\lfloor \frac{n-1}{2}\rfloor} {n-1 - i) \choose i} = \sum_{i=0}^{\frac{n}{2}} {n-i\choose i} + \sum_{i=0}^{\frac{n}{2}-1} {n-(i+1) \choose (i+1) - 1}.
+\end{aligned}\end{equation*}
+Next, let $k = i+1$ and separate the first term from the first summation so that 
+\begin{equation*}\begin{aligned}
+ \sum_{i=0}^{\frac{n}{2}} {n-i\choose i} + \sum_{i=0}^{\frac{n}{2}-1} {n-(i+1) \choose (i+1) - 1}&= {n \choose 0} + \sum_{i=1}^{\frac{n}{2}} {n-i \choose i} + \sum_{k=1}^{\frac{n}{2}} {n-k \choose k-1}.
+\end{aligned}\end{equation*}
+Recall, that ${n \choose 0} = 1 = {n+1 \choose 0}$ and combine the summation terms so that the previous expression becomes
+\begin{equation*}
+{n \choose 0} + \sum_{i=1}^{\frac{n}{2}} {n-i \choose i} + \sum_{k=1}^{\frac{n}{2}} {n-k \choose k-1} = {n+1 \choose 0} + \sum_{k=1}^{n/2} \left [ {n-k \choose k} + {n-k \choose k-1}\right ].
+\end{equation*} 
+Next, Pascal's identity which states that 
+\begin{equation*}
+{n + 1 \choose k} = {n \choose k} + {n \choose k - 1}
+\end{equation*}
+can be applied to the previous statement so that
+\begin{equation*}\begin{aligned}
+{n+1 \choose 0} + \sum_{k=1}^{n/2} \left [ {n-k \choose k} + {n-k \choose k-1}\right ] &= {n+1 \choose 0} + \sum_{k=1}^{\frac{n}{2}} {n - k + 1 \choose k} \\
+																					   &= \sum_{k=0}^{\frac{n}{2}} {n - k + 1 \choose k}. \\
+\end{aligned}\end{equation*}
+Therefore, if $n$ is even, and the two base cases hold, then the inductive case also holds, making the claim true. Next, we show that the inductive case also holds if $n$ is odd. If $n$ is odd, then $\lfloor \frac{n+1}{2} \rfloor = \frac{n+1}{2}$, $\lfloor \frac{n}{2} \rfloor = \frac{n-1}{2}$, and $\lfloor \frac{n-1}{2} \rfloor = \frac{n-1}{2}$ so that
+\begin{equation*}\begin{aligned}
+	F_{n + 1} + F_n & = \sum_{i=0}^{\lfloor \frac{n}{2}\rfloor} {n-i \choose i} + \sum_{i=0}^{\lfloor \frac{n-1}{2}\rfloor} {n-1 - i) \choose i} \\
+                    & = \sum_{i=0}^{\frac{n}{2} - 1} {n-i\choose i} + \sum_{i=0}^{\frac{n}{2}-1} {n-(i+1) \choose (i+1) - 1}.
+\end{aligned}\end{equation*}
+As before, let $k = i+1$ and separate the first term from the first summation so that
+\begin{equation*}
+F_{n+1} + F_n = \sum_{i=0}^{\frac{n}{2} - 1} {n-i\choose i} + \sum_{k=1}^{\frac{n+1}{2}} {n-k \choose k - 1}.
+\end{equation*}
+The next step is to separate the first term from the first summation, and the last term from the second so that
+\begin{equation*}
+F_{n+1} + F_n = {n \choose 0} + \sum_{i=1}^{\frac{n - 1}{2}} {n-i\choose i} + {n - \frac{n+1}{2} \choose \frac{n+1}{2} - 1} + \sum_{k=1}^{\frac{n-1}{2}} {n-k \choose k - 1}.
+\end{equation*}
+Note that $\displaystyle {n - \frac{n+1}{2} \choose \frac{n+1}{2} - 1} = {\frac{2n - n - 1}{2} \choose \frac{n+1}{2} - 1} = {\frac{n - 1}{2} \choose \frac{n - 1}{2}} = 1 = {\frac{n + 1}{2} \choose \frac{n + 1}{2}} = {n + 1 - \frac{n+1}{2} \choose \frac{n+1}{2}}$, and $\displaystyle {n \choose 0} = 1 = {n+1 \choose 0}$. Therefore, the previous statement can be expressed as
+\begin{equation*}
+F_{n+1} + F_n = {n+1 \choose 0} + \sum_{i=1}^{\frac{n - 1}{2}} {n-i\choose i} + {n+1 - \frac{n+1}{2} \choose \frac{n+1}{2}} + \sum_{k=1}^{\frac{n-1}{2}} {n-k \choose k - 1}
+\end{equation*}
+and the two summations combined so that
+\begin{equation*}
+F_{n+1} + F_n = {n+1 \choose 0} + {n+1 - \frac{n+1}{2} \choose \frac{n+1}{2}} + \sum_{k=1}^{\frac{n - 1}{2}} \left [ {n-k\choose k} +  {n-k \choose k - 1} \right ].
+\end{equation*}
+The next step is to apply pascal's identity as before so that
+\begin{equation*}
+F_{n+1} + F_n = {n+1 \choose 0} + {n+1 - \frac{n+1}{2} \choose \frac{n+1}{2}} + \sum_{k=1}^{\frac{n - 1}{2}} {n - k + 1\choose k}.
+\end{equation*}
+Finally, the first two terms can be written as the first and last term in the summation to show that
+\begin{equation*}
+F_{n+1} + F_n = \sum_{k=0}^{\frac{n + 1}{2}} {n + 1 - k\choose k}.
+\end{equation*}
+Thus, is the claim is true for $F_{n+1}$ and $F_{n}$, then it is also true for $F_{n+2}$ when $n$ is both odd and even.  Furthermore, because the claim is true both for its base cases and inductively, the claim is true for all values.
+\end{document}
