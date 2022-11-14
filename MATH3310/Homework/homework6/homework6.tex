@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usepackage[normalem]{ulem} % for strike through text
+\setlength{\headheight}{0in}
+
+\newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip}\leavevmode\\[0.05in]}
+\newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
+\pagestyle{fancy}
+\rhead{\today}
+\lhead{Daniel Mortensen}
+\chead{Homework 4}
+
+\begin{document}
+\noindent\underline{Problem 1}: Please \emph{re}-solve the laser-based pizza problem from the Midterm 
+Experience by treating the sliced up pizza as a graph and using the Euler/Descartes
+Characteristic.
+\emph{Note that my intention is not to irritate you with this problem, but hope 
+that you will get some edification in solving the problem in this way.
+By using a graph as a proxy for the pizza -- that is, by modeling the problem with 
+Graph Theory --  and the Descartes/Euler Characteristic, all issues of guessing are
+mitigated.}
+\statementsep
+In this proof, we will derive expressions for the number of edges and vertices and then use Euler's Identity to solve for the number of faces in the resulting graph. \\
+Each edge is uniquely defined by it's vertex end points, so that each edge creates two vertex degrees. Therefore, the number of edges can be computed by
+\begin{equation*}
+	\text{nEdge} = \frac{1}{2}\sum_{v \in V(G)} \text{deg}(v)
+\end{equation*}
+where deg$(v)$ is the degree of a vertex. In the pizza cutter scenario, the exterior vertices will have one degree for each edge that connects them to another exterior edge and two more that connect it to the edges on either side which make up the 'crust'. The other vertices we will call 'interior' vertices which are formed by the intersection of the `lasers'. Because each interior vertex is uniquely defined by two lasers (consisting of four vertices), then the degree of each interior point is four. Furthermore, the number of interior points is defined as ${n \choose 4}$ as there is one interior point for each unique four-set of exerior points. So the total number of vertex degrees can be computed as
+\begin{equation*}
+	\text{nDegree} = n(n - 1 + 2) + 4{n \choose 4}
+\end{equation*}
+and consequently, the number of edges is 
+\begin{equation*}\begin{aligned}
+	\text{nEdge} &= \frac{n(n + 1)}{2} + 2{n\choose 4} \\
+			     &= \frac{n(n - 1) + 2n}{2} + 2{n\choose 4} \\
+				 &= {n \choose 1} + {n \choose 2} + 2 {n\choose 4}.
+\end{aligned}\end{equation*}
+Next, the number of edges is computed as $n + {n \choose 4}$ as there are $n$ vertices around the crust and each intersection is uniquely defined by four exterior points. Next, we use Euler's identity so that
+\begin{equation*}\begin{aligned}
+	n - e + f = 2 & \implies \left ({n \choose 1} + {n \choose 4} \right ) - \left ( {n \choose 1} + {n \choose 2} + 2{n\choose 4} \right) + f = 2 \\
+				  & \implies -{n \choose 2} - {n \choose 4} + f = 2 \\
+				  & \implies f = {n \choose 2} + {n \choose 4} + 2.
+\end{aligned}\end{equation*}
+However, this also includes the space outside the `pizza', therefore, the total number of pizza slices is 
+\begin{equation*}\begin{aligned}
+\text{nSlices} &= {n \choose 2} + {n \choose 4} + 1 \\
+			   &= {n \choose 0} + {n \choose 2} + {n \choose 4}  \\
+			   &= \sum_{i = 0}^2 {n \choose 2i}
+\end{aligned}\end{equation*}
+\problemsep
+\noindent\underline{Problem 2}: 
+Please prove that no tournament with exactly $4$ vertices is such that every 
+vertex is a queen.
+\statementsep
+This proof will be given by way of contradiction.  Assume a scenario with four vertices where each vertex is a queen and label the vertices $a,b,c,d$ respectively. If vertex $a$ never wins, then it is not a queen, therefore the minimum number of rounds it may win and still be a queen is $1$. Furthermore we can assume that at least one vertex will only win $1$ round as there are six games and only four vertices. Therefore, without loss of generality, let $a$ be a vertex that only wins one round. If $a$ is a queen, then the vertex which lost to $a$ must win against every other vertex. In this example, let $a$ win against $b$, and $b$ win against all other vertices such that
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
+	\node(a) at (0,0){a};
+	\node(b) at (0,3){b};
+	\node(c) at (3,3){c};
+	\node(d) at (3,0){d};
+	\draw[->] (a) -- (b);
+	\draw[->] (b) -- (c);
+	\draw[->] (b) -- (d);
+\end{tikzpicture}
+\end{center}
+If vertex $c$ loses to $a$, then its path to $a$ would have to go through $d$, and would mean that it's path to $b$ is more than two, therefore $c$ must beat $a$. If $c$ loses to $d$, then it won't have a path to $d$, so $c$ must beat $d$ as well, yielding
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
+	\node(a) at (0,0){a};
+	\node(b) at (0,3){b};
+	\node(c) at (3,3){c};
+	\node(d) at (3,0){d};
+	\draw[->] (a) -- (b);
+	\draw[->] (b) -- (c);
+	\draw[->] (b) -- (d);
+	\draw[->] (c) -- (d);
+	\draw[->] (c) -- (a);
+\end{tikzpicture}
+\end{center}
+however, we assumed at the beginning that $a$ only won a single round, therefore $d$ must beat $a$.
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
+	\node(a) at (0,0){a};
+	\node(b) at (0,3){b};
+	\node(c) at (3,3){c};
+	\node(d) at (3,0){d};
+	\draw[->] (a) -- (b);
+	\draw[->] (b) -- (c);
+	\draw[->] (b) -- (d);
+	\draw[->] (c) -- (d);
+	\draw[->] (c) -- (a);
+	\draw[->] (d) -- (a);
+\end{tikzpicture}
+\end{center}
+Upon inspection, the path from $d$ to $c$ is larger than two so that $d$ is not a queen which contradicts the original assumption that all vertices are queens.
+\problemsep
+\noindent\underline{Problem 3:} Please prove that in any tournament, if a vertex is beaten, then it is beaten
+by a queen. 
+isomorphic.
+\statementsep
+\textcolor{red}{Insert proof here}
+\problemsep
+\noindent\underline{Problem 4: } Please prove that no tournament with $n$ vertices  (where $n \geq 0$) has 
+exactly $2$ queens.
+\end{document}
