@@ -84,7 +84,49 @@ it as the origin $(0,0)$ and take $n$ steps, each of type $R$, $L$, or $U$, with
 $R$ never followed by $L$ and vice-versa. The steps are defined via $R:(x,y) \mapsto (x+1,y)$, $L:(x,y) \mapsto (x-1,y)$, and $U:(x, y+1)$.
 Determine the number of different paths with $n$ steps.
 \statementsep
-Consider a path with $n$ steps as an $n$ element ordered sequence. The first element in the sequence has four options, one for north, south, east and west respectively. Because each element cannot double back on itself, once an element is placed, there are three remaining options so that the number of total options is equal to $4 \cdot 3^{n-1}$.
+We will first show that there is a recurrance relation between $s(n)$ and $s(n - 1)$, and then use that relation to derive a closed form solution. There are two key insights that make up the recurrance. For each step, if the previous step was $R$, then your options are $R$ again or $U$.  If the previous step was $L$, the your options are $L$ or $U$.  If the previous step was $U$, then you may take $R$, $L$, or $U$ steps. The first observation is that if we know $s(n)$, then $s(n+1$ will have two paths for each path in $s(n)$, plus one for each path that ended in $U$ so that
+\begin{equation*}
+	s(n) = 2s(n - 1) + \text{Number of Up Steps}.
+\end{equation*}
+The second observation is to show that each parent node must yield one $U$ option, but there is one parent node for each option at $s(n - 2)$, yielding
+\begin{equation*}
+	s(n) = 2s(n - 1) + s(n - 2).
+\end{equation*} \\
+The next step is to derive a closed form solution from the recurrance relation. Because the number of decisions for $n$ steps corresponds to the number of leafs a the $n^{\text{th}}$ level of a tree, it is reasonable to assume that the solution is made up of a (collection of) basis function(s) of the form $\gamma^n$, where $\gamma$ represents some constant (similarly to how a tree where each node has two children is described as $2^n$). We the set of possible basis functions as all functions of the form $\gamma^n$ which satisfy the recurrance relation $s(n) = 2s(n - 1) + s(n - 2)$.  We can find the form of gamma by letting $n = 2$, and substituting $\gamma$ in the recurrance relation so that
+\begin{equation*}
+	\gamma^n = 2\gamma^{n-1} + \gamma^{n - 2}
+\end{equation*}
+or for $n = 2$, 
+\begin{equation*}
+	\gamma^2 - 2\gamma - 1 = 0.
+\end{equation*}
+We can solve for $\gamma$ to get
+\begin{equation*}
+	\gamma = 1 \pm \sqrt{2}.
+\end{equation*}
+Because we don't know which basis function will be most effective, we define the solution as their linear combination, where
+\begin{equation*}
+	s(n) = c_1(1 + \sqrt{2}) + c_2(1 - \sqrt{2}).
+\end{equation*}
+We can use the results for $n = 0$ and $n = 1$ to solve for the coeffients so that
+\begin{equation*}\begin{aligned}
+	s(0) &= c_1(1 + \sqrt{2}) + c_2(1 - \sqrt{2}) \\
+	s(1) &= c_1(1 + \sqrt{2}) + c_2(1 - \sqrt{2}) \\
+\end{aligned}\end{equation*}
+which implies that
+\begin{equation*}\begin{aligned}
+	1 &= c_1(1 + \sqrt{2}) + c_2(1 - \sqrt{2}) \\
+	3 &= c_1(1 + \sqrt{2}) + c_2(1 - \sqrt{2}) \\
+\end{aligned}\end{equation*}
+solving the system of equations yields
+\begin{equation*}\begin{aligned}
+	c_1 &= \frac{1 + \sqrt{2}}{2} \\
+	c_2 &= \frac{1 - \sqrt{2}}{2} \\
+\end{aligned}\end{equation*}
+so that 
+\begin{equation*}
+	s(n) = \frac{\left (1 + \sqrt{2} \right )^{n + 1}}{2} + \frac{\left (1 - \sqrt{2} \right )^{n + 1}}{2}
+\end{equation*}
 \problemsep
 \noindent \maltese \hspace{1ex}{\bf Sub-Experience Three: The Master Table of Distributions.} \\
 \noindent  Recall the table of distribution functions $f:A \to B$, where $A$ is a 
@@ -102,7 +144,7 @@ the table.
 \statementsep
 In this solution, we consider each entry in the table in reference to its number and give an appropriate response for each in the following list.
 \begin{enumerate}
-\item Because each element from both sets is distinguishable, any element from $A$ can map to any element in $B$. Therefore, for a single element in $A$, there are two options for each element in $B$ minus the option where that element does not map to any element in $B$ so that each element in $A$ has $2^x - 1$ options. Each element in $A$ is also independent of the others, thereore the total number of combinations between $A$ and $B$ is $(2^x - 1)^n$. 
+\item Consider the mapping from $A$ to $B$ on an element by element basis. The first element in $A$ can map to any element in $B$, but for the mapping to be a function, each element in $A$ can only map to one element in $B$. Therefore, there are $x^n$ possible mappings between $A$ and $B$ for the unrestricted case. 
 \item For a function to be injective, $f(a) = f(b) \implies a = b$, which essentially means that each element in $A$ can only map to one element in $B$. If $\lvert A \rvert > \lvert B \rvert$, then the answer is zero because not all elements in the domain can map to a unique element in the codomain. The following proof is presented for the case where $\lvert A \rvert \le \lvert B \rvert$. Consider an analogy where we place balls (representing elements from the domain) into boxes (representing elements in the codomain). Each matching is counted as a function and we therefore desire to find the number of ways in which to pair the balls from the domain with the boxes from the codomain. Consider the first element from the codomain.  The first element can pair with any of the $x$ elements in the codomain. The second element in the domain can pair with any element in the codomain that is not paired with the first, yielding $x(x - 1)$ combinations. Continuing as such until all elements in the domain have been paired with elements in the codomain yields 
 \begin{equation*}
 	\text{nCombination} = x(x-1)(x-2)...(x-(n-1))
@@ -111,32 +153,33 @@ which is equivalent to
 \begin{equation*}
 \text{nCombination} = \frac{x!}{(x - n)!}
 \end{equation*}
-\item A function is surjective if each box contains at least one ball, or more precisely $\forall b \in B, \ \exists a \in A \ni f(a) = b$. We will determine the number of surjective functiosn by subtractig the number that are not surjective from the total number of possible functions. A function is not surjective if at least one box does not contain a ball. Partition the set of non-surjective functions on the number of boxes that do not contain balls. First, we select the number of boxes that will not contain balls. Then we determine the number of permutations that may occur, and then we determine the number of possible functions per permutation. For $i$ empty boxes, there are ${x \choose i}$ permutations. For each permutation, there is also $n$ options per non-empty box so that each permutation yields $n^{x - i}$ options. Therefore, the number of functions where $i$ boxes do not contain any balls is described as ${x \choose i}n^{x - i}$. If we sum over all partitions, then the total number of empty boxes is
-\begin{equation*}
-	\sum_{i=1}^{x-1}{x\choose i}n^{x - i}
-\end{equation*}
-and the number of surjective functions is consequently $(2^x - 1)^n - \sum_{i=1}^{x-1}{x\choose i}n^{x - i}$.
+\item A function is surjective if each box contains at least one ball, or more precisely $\forall b \in B, \ \exists a \in A \ni f(a) = b$. We therefore desire to know how many ways the balls can be grouped such that there are $x$ distinct groups. First consider the case where the boxes are unlabeled. When boxes are unlabeled, the question becomes how many ways can we partition n balls into x non-empty groups, which is defined as ${n \brace x}$. Next, consider a scenario where the balls have been partitioned, and how we desire to know how many combinations of partitions exist with labeled boxes. If there are $x$ partitions, then box $a$ would pair with one of $x$ partitions. Box $b$ would pair with one of $x - 1$ partitions and so on until all boxes have paired, yielding $x!$ options. Therefore, for each partitioning, there are $x!$ options which implies that there are a total of ${n \brace x}x!$ functions.
 \item Because the elements of $A$ are indistinguishable, each function would differ based on how many elements in $A$ map to each element in $B$. For example, if we use the balls and boxes metaphore, then we would ask how many balls are in each box. Consider a scenario where there were two balls in box 1, three balls in box 2, and 1 ball in box 3. We describe this as an element in a multiset such that 
 \begin{equation*}
 	f_i = \langle b_1^{(2)}, b_2^{(3)}, b_3^{(1)}\rangle.
 \end{equation*}
 In general, we refer to the set of all possible functions as the multiset of $B$ size $n$, which has  $\left ( {n \choose x} \right )$ elements, where $n$ is the number of elements from $A$, and $x$ is the number of elements in $B$. Therefore, the number of elements in the multiset of $B$ with size $n$ is ${x + n - 1 \choose x}$. 
 
-\item A function is injective if $f(a) = f(b) \implies a = b$. If we adopt the balls and boxes metaphore, then this equates to if balls are in the same box then they are equal. Because the balls are indistinguishable, than all balls are equal. Hence, this is true for all functions which map $A$ to $B$. Therefore, the number of injective functions is ${n + x - 1 \choose x}$. 
+\item A function is injective if $f(a) = f(b) \implies a = b$, which can be stated as each ball chooses a single box. However, because the balls are indistinguishable, this amounts to how many ways can I select n of the x boxes, or ${x \choose n}$.
 \item Adopting again the ball and boxes metaphore, a surjective function is one where each box contains at least one ball. Because the balls are indistinct, we don't care which ball a box contains. Therefore, assume that the first $x$ balls are placed in individual boxes. Then the number of possible functions is the multiset of $B$ size $n - x$ and consequently, the number of functions is 
 \begin{equation*}
 	{n - 1 \choose x}
 \end{equation*} 
-\item Because the elements in $B$ are indistinguishable from each other, the defining trait of a function is to how many elements in $B$ each element in $A$ maps. Because these functions are unconstrained, there are $x$ possibilities for each element in $A$, one for each possible number of mappings to an element in $B$. Therefore, the number of functions is $x^n$. 
-\item Because a function is injective if $f(a) = f(b) \implies a = b$, and all elements in $B$ are equal as they are indistinguishable, then no function mapping the domain to an element in $B$ can be injective. 
-\item Recall that a function is surjective if $\forall b \in B, \ \exists a \in A \ni f(a) = b$. Suppose there are two element in $B$ denoted $b_1$ and $b_2$, where $b_1$ and $b_2$ are indistinguishable so that $b_1 = b_2$. Then if $\exists a \in A \ni f(a) = b_1$, then there also exists an $a$ in $A$ such that $f(a) = b_2$. Hence, all functions that map from the domain to the codomain are surjective. 
-\item Assume the balls and boxes analogy we've used in the past. Because both elements contain sets that are indistinguishable, we characterize a function by how many balls are mapped to any one box. This leads to a unordered set of numbers of size $x$. Let $f_i$ be defined as an element in a multiset
-\begin{equation*}
-	f_i = \langle 0^{()}, 1^{()}, 2^{()}, 3^{()}, \cdots n^{()}\rangle
-\end{equation*}
-of size $x$, where the value in each parenthesis for the $i^{\text{th}}$ element gives the number of times $i$ elements from $A$ map to the same element in $B$. This yields $\left ({n + 1\choose x} \right )$ functions which is expressed as ${n + x \choose x}$. 
+\item A function in this context can be described as one way in which balls (distinguishable) are grouped together, as the boxes are indistinguishable. The set of functions is unrestricted, meaning that the number of groups may range from one to $x$.  The definition of $n$ partition $k$ is the number of ways $n$ objects can be partitioned into $k$ groups.  In this instance, $k$ ranges from $1$ to $x$ so that the number of functions is 
+	\begin{equation*}
+		\sum_{k=1}^x {n \brace k}
+	\end{equation*}
+\item An injective function can be thought of as a mapping where each `ball' maps to only one `box'.  If the number of elements in the codomain is less than the number of elements in the domain, than there are zero functions that meet this criteria. Otherwise, let each element from the domain map to a distinct, yet indistinguishable element from the codomain. Because each elemen tin the codomain is indistinguishable, it makes no difference to which codomain element a domain element maps, yielding one function. Another way of thinking of how a function is distinguished is by which elements from the codomain are `grouped' together.  Since all groups will only have one element, then all injective functions are equivalent. \textcolor{red}{What about the definition of injective?  Doesn't this violate that definition because f(a) = f(b) for all elements in the codomain, but a is not equal to b from the domain?}
+\item Recall that a function is surjective if $\forall b \in B, \ \exists a \in A \ni f(a) = b$. In a `balls' and `boxes' paradigm, surjective is expressed as a mapping which ensures that all boxes maintain at least one element. This is equivalent to saying that all balls must be divided into $x$ non-empty sets, which is equal to 
+	\begin{equation*}
+		{n \brace x}
+	\end{equation*}
+\item Because neither the `boxes' or `balls' are distinguishable, a function's only distinguishing factor is how many balls are mapped to a single box. This can be expressed as a partition of $n$, denoted $p_k(n)$, where $k$ is the number of non-zero partitions (or boxes to which at least one element is mapped). Because the function may map to an arbitrary non-zero number of boxes, the total number of functions is described as
+	\begin{equation*}
+		\sum_{k=1}^x p_k(n).
+	\end{equation*}
 \item Because every element in $A$ is equivalent and every element in $B$ is equivalent, then $f(a) = f(b) \implies a = b$ is true for every element in $A$ and $B$. Therefore, every function that maps $A$ to $B$ is injective.
-\item The definition of surjective implies that $\forall b \in B, \ \exists a \in A \ni f(a) = b$. Since all element in $A$ are equivalent and all element in $B$ are also equivalent, than any mapping form $A$ to $B$ satisfies these constraints and therefore all functions that map from $A$ to $B$ are surjective. 
+\item The definition of surjective implies that each `box' must to be recipient of at least one `ball'. If we define a function by the number of `balls' that are grouped together as in cell 10, then a surjective function is a function that forms $x$ non-empty sets where the cardinality of all $x$ sets is $n$ which can be expressed as $p_x(n)$, or the partition of $n$ elements into $x$ non-empty sets.
 \end{enumerate}
 \problemsep
 \noindent \maltese \hspace{1ex} {\bf Sub-Experience Four: \emph{Game Time!}}\\
@@ -259,4 +302,17 @@ Note how the 5 person scenario contained two more 1-step actions than the 4 pers
 \begin{equation*}
 s(n) = \left (n - 2^{\lfloor \text{log}_2n \rfloor} \right ) + 1
 \end{equation*}
+
+\problemsep
+Prove or disprove whether you can order the years 1985,...,1995 so that the resulting number is prime.
+\statementsep
+Let $N = a_ka_{k=1}...a_1a_0$, where $N$ can also be written in terms of base ten numbers such that
+\begin{equation*}
+	N = \sum_{i=0}^ka_i10^i.
+\end{equation*}
+Consider a circle with $11$ steps. If I were to walk $n$ steps around the circle, then I would only pass the $0$ position for every multiple of $11$ (after taking a number of steps that is divisible by $11$). If I take $10$ steps forward along this circle, that is equivalent to taking one step backward (or $-1$ steps). Taking two sets of 10 steps forward is equivalent to $-2$, and so on, where $10$ is equivalent to $-1$ as far as multiplication and addition are concerned. Let us return to the previous expression and substitute each value of $10$ for $-1$, yielding
+\begin{equation*}
+	N = \sum_{i=0}^ka_i(-1)^i.
+\end{equation*}
+Note that for each power of 10, the sign alternates from positive 1 to negative 1, resulting in an alternating sum.  If this alternating sum is equal to 0 (think zero-step location), then $N$ is divisible by 11. Select some arbitrary ordering of values 1985 to 1995. Note that each year begins with 19, the next value will either be 8 or 9, and final value ranges from 5 to 5 using single step increments. We can apply the alternating sum as follows: (5 + 6 + 7 + 8 + 9 + 0 + 1 + 2 + 3 + 4 + 5)*(1) + (8 + 8 + 8 + 8 + 8 + 9 + 9 + 9 + 9 + 9 + 9)*(-1) + (9*11)*(1) + (1*11)*(-1). Immediately we can discount the final two sums as they are multiples of 11.  Then observe how (5 + 6 + 7 + 8 + 9 + 0 + 1 + 2 + 3 + 4 + 5) - (8 + 8 + 8 + 8 + 8 + 9 + 9 + 9 + 9 + 9 + 9) = 50 -94 = -44. What we have shown is that if we take $N$ steps forwards in our circular walk, it is equivalent to taking 44 steps backwards, but taking 44 steps backwards will still land the walker at location 1 (the circle doesn't care which direction you travel... 11 steps forward is equivalent to 11 steps backwards), which implies that taking $N$ steps forward is also equivalent to taking {\emph zero} steps forward in our 11-step circle, implyingn that $N$ is divisible by $11$. Hence, $N$ (or any arbitrary ordering of the numbers 1985 to 1995) cannot ever by prime as it is always divisible by 11.
 \end{document}
