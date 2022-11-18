@@ -107,10 +107,18 @@ Upon inspection, the path from $d$ to $c$ is larger than two so that $d$ is not 
 \problemsep
 \noindent\underline{Problem 3:} Please prove that in any tournament, if a vertex is beaten, then it is beaten
 by a queen. 
-isomorphic.
 \statementsep
-\textcolor{red}{Insert proof here}
+For this proof, we will first prove that every tournament has a queen, then use this fact to prove that if a vertex is beaten, then it is beaten by a queen.\\[0.05in]
+\noindent {\emph Claim: } Every tournament must have a queen. \\[0.05in]
+\noindent {\emph Proof: } The claim can be proved by proving that an element with highest outset degree must be a queen.  If this is the case, then by the well-ordering axiam, each finite set must have an element with maximum outset degree.We prove this by way of contradiction. Suppose en element $p$ has maximum outset degree and is not a queen. Consider the problem in terms of three groups: the inset group of $p$, $p$ and the outset group of $p$. If $p$ is not a queen, then there exists at least one element in its inset group which is not beaten by any element in its outset group. This element will have an outset degree that is at least the same as $p$ plus one (as it also beats $p$). Therefore, $p$ is not the element with greatest outset degree which contradicts out initial assumption. \\[0.05in]
+\noindent {\emph Claim: } If a vertex is beaten, it is beaten by a queen. \\[0.05in]
+\noindent {\emph Proof: } Let the vertex $p$ be beaten by some element so that its inset set is non-empty. From the previous proof, we know that there is a vertex $q$ which is a relataive queen for the inset group, as this group forms its own sub-tournament. The queen of the inset group also beats $p$, and because $p$ beats every element in its outset group, then $q$ can reach each element in the outset group of $p$ in two steps.  Therefore, $q$ can reach each element in the tournament in two steps or less and is therefore a queen.
+
+
 \problemsep
 \noindent\underline{Problem 4: } Please prove that no tournament with $n$ vertices  (where $n \geq 0$) has 
 exactly $2$ queens.
+\statementsep
+\noindent {\emph Claim: } No tournament with $n$ vertices has exactly 2 queens. \\[0.05in]
+\noindent {\emph Proof: } We will prove this statement by way of contradiction. Suppose there are two queens in an n-tournament, denoted $q_1$ and $q_2$. Consider the tournament in three sets: the inset of $q_1$, $q_1$ and the outset of $q_1$. We know that $q_1$ and $q_2$ must have non-empty inset sets respectively, otherwise one would be an emperor and there would only be one queen. By the proof from Problem 3, we know that any vertex which is beaten must be beaten by a queen. Therefore, we know that $q_2$ must be in the inset set of $q_1$.  But $q_2$ also has a non-empty inset set and so must be beaten by another queen.  This queen cannot be $q_2$ as $q_1$ already beats $q_2$. Therefore, there must be a third queen in the tournament which contradicts the original assumption that there were only two queens.
 \end{document}
