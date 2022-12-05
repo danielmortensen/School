@@ -34,110 +34,47 @@
 		\begin{equation*}
 			\begin{tabular}{c | c | c | c | c |c | c | c | c | c | c |}
 				   & 1,2 & 1,3 & 1,4 & 1,5 & 2,3 & 2,4 & 2,5 & 3,4 & 3,5 & 4,5 \\ \hline 
-				1,2& 3   & 0   & 0   & 0   & 0   & 0   & 0   & 1   & 1   & 1   \\ \hline
-				1,3& 0   & 3   & 0   & 0   & 1   & 1   & 0   & 0   & 0   & 1   \\ \hline
-				1,4& 0   & 0   & 3   & 0   & 1   & 0   & 1   & 0   & 1   & 0   \\ \hline
-				1,5& 0   & 0   & 0   & 3   & 1   & 1   & 0   & 1   & 0   & 0   \\ \hline
-				2,3& 0   & 0   & 1   & 1   & 3   & 0   & 0   & 0   & 0   & 1   \\ \hline
-				2,4& 0   & 1   & 0   & 1   & 0   & 3   & 0   & 0   & 1   & 0   \\ \hline
-				2,5& 0   & 1   & 1   & 0   & 0   & 0   & 3   & 1   & 0   & 0   \\ \hline
-				3,4& 1   & 0   & 0   & 1   & 0   & 0   & 1   & 3   & 0   & 0   \\ \hline
-				3,5& 1   & 0   & 1   & 0   & 0   & 1   & 0   & 0   & 3   & 0   \\ \hline
-				4,5& 1   & 1   & 0   & 0   & 1   & 0   & 0   & 0   & 0   & 3   \\ \hline
+				1,2& 3   & 0   & 0   & 0   & 0   & 0   & 0   & -1   & -1   & -1   \\ \hline
+				1,3& 0   & 3   & 0   & 0   & 0   & -1   & -1   & 0   & 0   & -1   \\ \hline
+				1,4& 0   & 0   & 3   & 0   & -1   & 0   & -1   & 0   & -1   & 0   \\ \hline
+				1,5& 0   & 0   & 0   & 3   & -1   & -1   & 0   & -1   & 0   & 0   \\ \hline
+				2,3& 0   & 0   & -1   & -1   & 3   & 0   & 0   & 0   & 0   & -1   \\ \hline
+				2,4& 0   & -1   & 0   & -1   & 0   & 3   & 0   & 0   & -1   & 0   \\ \hline
+				2,5& 0   & -1   & -1   & 0   & 0   & 0   & 3   & -1   & 0   & 0   \\ \hline
+				3,4& -1   & 0   & 0   & -1   & 0   & 0   & -1   & 3   & 0   & 0   \\ \hline
+				3,5& -1   & 0   & -1   & 0   & 0   & -1   & 0   & 0   & 3   & 0   \\ \hline
+				4,5& -1   & -1   & 0   & 0   & -1   & 0   & 0   & 0   & 0   & 3   \\ \hline
 			\end{tabular}
 		\end{equation*}
-		As the Petersen graph is not directed (otherwise the non-diagonal elements would the negative of their counterparts from the adjacency matrix).
-	\item In this section we compute $\tau(G')$. First, note that the 
+		as the laplacian is defined as $D - A$ where $D$ is the degree matrix (i.e. a diagonal matrix where each diagonal element is the degree of the corresponding vertex) and $A$ is the adjacency matrix.  We know from homework 6 that the degree of each vertex in the Petersen graph is $3$, which yields the matrix given above. We also know that the number of spanning trees is given as the determinant of the laplacian with row and column $i$ removed.  This yields 2,000 spanning trees.
+	\item In this section we compute $\tau(G')$. First, note that the number of spanning trees will be the same regardless of which edge is removed. Therefore, we only need compute $\tau(G')$ for one instance of $G'$. By removing one edge and computing $\tau(G')$, the number of possible trees for $G'$ is 800.
+	\item In this section we compute $\tau(G'')$.  First, note that we only need compute the number of trees for two cases.  The first case occures when two edges that connect to the same vertex are removed, and the second happens when the two edges connect to different vertices. Computing $\tau(G'')$ for the first yields $\tau(G'') = 240$, and $\tau(G'')$ for the second case is equal to $300$.
+	\item In this section, we show that the maximum number of steps between any two vertices is two.  From Theorem $A$, we know that {\it If $A$ is the adjacency matrix of $G$, entry (i,j) in $A^k$ is the number of walks of length $k$ from $v_i$ to $v_j$.} We compute $A + A^2$ of adjacency matrix for the Petersen graph which yields a matrix of all ones, except on the diagonal where the values are three.  This implies that the distance between two vertices is either one or two so that the maximum distance between any two vertices is two.
 \end{enumerate}
-In this proof, we will derive expressions for the number of edges and vertices and then use Euler's Identity to solve for the number of faces in the resulting graph. \\
-Each edge is uniquely defined by it's vertex end points, so that each edge creates two vertex degrees. Therefore, the number of edges can be computed by
-\begin{equation*}
-	\text{nEdge} = \frac{1}{2}\sum_{v \in V(G)} \text{deg}(v)
-\end{equation*}
-where deg$(v)$ is the degree of a vertex. In the pizza cutter scenario, the exterior vertices will have one degree for each edge that connects them to another exterior edge and two more that connect it to the edges on either side which make up the 'crust'. The other vertices we will call 'interior' vertices which are formed by the intersection of the `lasers'. Because each interior vertex is uniquely defined by two lasers (consisting of four vertices), then the degree of each interior point is four. Furthermore, the number of interior points is defined as ${n \choose 4}$ as there is one interior point for each unique four-set of exerior points. So the total number of vertex degrees can be computed as
-\begin{equation*}
-	\text{nDegree} = n(n - 1 + 2) + 4{n \choose 4}
-\end{equation*}
-and consequently, the number of edges is 
-\begin{equation*}\begin{aligned}
-	\text{nEdge} &= \frac{n(n + 1)}{2} + 2{n\choose 4} \\
-			     &= \frac{n(n - 1) + 2n}{2} + 2{n\choose 4} \\
-				 &= {n \choose 1} + {n \choose 2} + 2 {n\choose 4}.
-\end{aligned}\end{equation*}
-Next, the number of edges is computed as $n + {n \choose 4}$ as there are $n$ vertices around the crust and each intersection is uniquely defined by four exterior points. Next, we use Euler's identity so that
-\begin{equation*}\begin{aligned}
-	n - e + f = 2 & \implies \left ({n \choose 1} + {n \choose 4} \right ) - \left ( {n \choose 1} + {n \choose 2} + 2{n\choose 4} \right) + f = 2 \\
-				  & \implies -{n \choose 2} - {n \choose 4} + f = 2 \\
-				  & \implies f = {n \choose 2} + {n \choose 4} + 2.
-\end{aligned}\end{equation*}
-However, this also includes the space outside the `pizza', therefore, the total number of pizza slices is 
-\begin{equation*}\begin{aligned}
-\text{nSlices} &= {n \choose 2} + {n \choose 4} + 1 \\
-			   &= {n \choose 0} + {n \choose 2} + {n \choose 4}  \\
-			   &= \sum_{i = 0}^2 {n \choose 2i}
-\end{aligned}\end{equation*}
 \problemsep
 \noindent\underline{Problem 2}: 
-Please prove that no tournament with exactly $4$ vertices is such that every 
-vertex is a queen.
+Use Theorem $A$ and the trace of the appropriate power of the adjacency matrix of the graph below to determine how many "triangles" the graph given in the problem statement has.
 \statementsep
-This proof will be given by way of contradiction.  Assume a scenario with four vertices where each vertex is a queen and label the vertices $a,b,c,d$ respectively. If vertex $a$ never wins, then it is not a queen, therefore the minimum number of rounds it may win and still be a queen is $1$. Furthermore we can assume that at least one vertex will only win $1$ round as there are six games and only four vertices. Therefore, without loss of generality, let $a$ be a vertex that only wins one round. If $a$ is a queen, then the vertex which lost to $a$ must win against every other vertex. In this example, let $a$ win against $b$, and $b$ win against all other vertices such that
-\begin{center}
-\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
-	\node(a) at (0,0){a};
-	\node(b) at (0,3){b};
-	\node(c) at (3,3){c};
-	\node(d) at (3,0){d};
-	\draw[->] (a) -- (b);
-	\draw[->] (b) -- (c);
-	\draw[->] (b) -- (d);
-\end{tikzpicture}
-\end{center}
-If vertex $c$ loses to $a$, then its path to $a$ would have to go through $d$, and would mean that it's path to $b$ is more than two, therefore $c$ must beat $a$. If $c$ loses to $d$, then it won't have a path to $d$, so $c$ must beat $d$ as well, yielding
-\begin{center}
-\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
-	\node(a) at (0,0){a};
-	\node(b) at (0,3){b};
-	\node(c) at (3,3){c};
-	\node(d) at (3,0){d};
-	\draw[->] (a) -- (b);
-	\draw[->] (b) -- (c);
-	\draw[->] (b) -- (d);
-	\draw[->] (c) -- (d);
-	\draw[->] (c) -- (a);
-\end{tikzpicture}
-\end{center}
-however, we assumed at the beginning that $a$ only won a single round, therefore $d$ must beat $a$.
-\begin{center}
-\begin{tikzpicture}[every node/.style={circle, draw=black, fill=blue!30, minimum size=1cm}]
-	\node(a) at (0,0){a};
-	\node(b) at (0,3){b};
-	\node(c) at (3,3){c};
-	\node(d) at (3,0){d};
-	\draw[->] (a) -- (b);
-	\draw[->] (b) -- (c);
-	\draw[->] (b) -- (d);
-	\draw[->] (c) -- (d);
-	\draw[->] (c) -- (a);
-	\draw[->] (d) -- (a);
-\end{tikzpicture}
-\end{center}
-Upon inspection, the path from $d$ to $c$ is larger than two so that $d$ is not a queen which contradicts the original assumption that all vertices are queens.
-\problemsep
-\noindent\underline{Problem 3:} Please prove that in any tournament, if a vertex is beaten, then it is beaten
-by a queen. 
-\statementsep
-For this proof, we will first prove that every tournament has a queen, then use this fact to prove that if a vertex is beaten, then it is beaten by a queen.\\[0.05in]
-\noindent {\emph Claim: } Every tournament must have a queen. \\[0.05in]
-\noindent {\emph Proof: } The claim can be proved by proving that an element with highest outset degree must be a queen.  If this is the case, then by the well-ordering axiam, each finite set must have an element with maximum outset degree.We prove this by way of contradiction. Suppose en element $p$ has maximum outset degree and is not a queen. Consider the problem in terms of three groups: the inset group of $p$, $p$ and the outset group of $p$. If $p$ is not a queen, then there exists at least one element in its inset group which is not beaten by any element in its outset group. This element will have an outset degree that is at least the same as $p$ plus one (as it also beats $p$). Therefore, $p$ is not the element with greatest outset degree which contradicts out initial assumption. \\[0.05in]
-\noindent {\emph Claim: } If a vertex is beaten, it is beaten by a queen. \\[0.05in]
-\noindent {\emph Proof: } Let the vertex $p$ be beaten by some element so that its inset set is non-empty. From the previous proof, we know that there is a vertex $q$ which is a relataive queen for the inset group, as this group forms its own sub-tournament. The queen of the inset group also beats $p$, and because $p$ beats every element in its outset group, then $q$ can reach each element in the outset group of $p$ in two steps.  Therefore, $q$ can reach each element in the tournament in two steps or less and is therefore a queen.
-
-
-\problemsep
-\noindent\underline{Problem 4: } Please prove that no tournament with $n$ vertices  (where $n \geq 0$) has 
-exactly $2$ queens.
-\statementsep
-\noindent {\emph Claim: } No tournament with $n$ vertices has exactly 2 queens. \\[0.05in]
-\noindent {\emph Proof: } We will prove this statement by way of contradiction. Suppose there are two queens in an n-tournament, denoted $q_1$ and $q_2$. Consider the tournament in three sets: the inset of $q_1$, $q_1$ and the outset of $q_1$. We know that $q_1$ and $q_2$ must have non-empty inset sets respectively, otherwise one would be an emperor and there would only be one queen. By the proof from Problem 3, we know that any vertex which is beaten must be beaten by a queen. Therefore, we know that $q_2$ must be in the inset set of $q_1$.  But $q_2$ also has a non-empty inset set and so must be beaten by another queen.  This queen cannot be $q_2$ as $q_1$ already beats $q_2$. Therefore, there must be a third queen in the tournament which contradicts the original assumption that there were only two queens.
+The adjacency matrix of the graph given in the problem statement is:
+\begin{equation*}
+	\begin{tabular}{c | c | c | c | c | c | c | c | c | c | c | c |}
+		        & $v_1$ & $v_2$ & $v_3$ & $v_4$ & $v_5$ & $v_6$ & $v_7$ & $v_8$ & $v_9$ & $v_{10}$ & $v_{11}$ \\ \hline
+		$v_1$   & 0     & 1     & 0     & 0     & 1     & 0     & 1     & 1     & 1     & 1        & 0        \\ \hline
+		$v_2$   & 1     & 0     & 1     & 0     & 0     & 1     & 0     & 1     & 0     & 0        & 0        \\ \hline
+		$v_3$   & 0     & 1     & 0     & 1     & 0     & 0     & 1     & 0     & 1     & 0        & 0        \\ \hline
+		$v_4$   & 0     & 0     & 1     & 0     & 1     & 0     & 0     & 1     & 0     & 1        & 0        \\ \hline
+		$v_5$   & 1     & 0     & 0     & 1     & 0     & 1     & 0     & 0     & 1     & 0        & 0        \\ \hline
+		$v_6$   & 0     & 1     & 0     & 0     & 1     & 0     & 0     & 0     & 0     & 0        & 1        \\ \hline
+		$v_7$   & 1     & 0     & 1     & 0     & 0     & 0     & 0     & 0     & 0     & 0        & 1        \\ \hline
+		$v_8$   & 1     & 1     & 0     & 1     & 0     & 0     & 0     & 0     & 0     & 0        & 1        \\ \hline
+		$v_9$   & 1     & 0     & 1     & 0     & 1     & 0     & 0     & 0     & 0     & 0        & 1        \\ \hline
+		$v_{10}$& 1     & 0     & 0     & 1     & 0     & 0     & 0     & 0     & 0     & 0        & 1        \\ \hline
+		$v_{11}$& 0     & 0     & 0     & 0     & 0     & 1     & 1     & 1     & 1     & 1        & 0        \\ \hline
+	\end{tabular}
+\end{equation*}
+We also know that a "triangle" is a cycle with three steps, which is the number of of walks of length $3$ from one vertex back to itself, which is divided by 6 because each triangle is counted once for both the forward and backward direction, and for each starting edge of the path (which is three in this case).  Therefore, the number of triangles in the graph is 
+\begin{equation*}
+	\text{Tr}(A^3)/6 = 2
+\end{equation*}
+where Tr$(\cdot)$ is the trace of the resulting matrix.  We use the trace because we desire to add all cycles of length three (or paths that start and end on the same vertex) which is located along the diagonal of $A^3$.
 \end{document}
