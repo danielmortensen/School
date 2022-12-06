@@ -15,24 +15,56 @@
 
 \newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip/2}\leavevmode\\[0.05in]}
 \newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
+\newcommand{\response}[1]{\begin{itemize} \item {\bf Response: } #1 \end{itemize}}
 \pagestyle{fancy}
 \rhead{\today}
 \lhead{Daniel Mortensen}
 \chead{Final ``Experience''}
 
 \begin{document}
-\noindent \maltese \hspace{1ex} {\bf Sub-Experience One: Some Tournament Problems}\\
-\vspace{2em}
+\noindent \maltese \hspace{1ex} {\bf Sub-Experience One: Some Tournament Problems}\\[1em]
 \noindent{\bf Part One: Curling.} \emph{No outside resources, please.}) Suppose $10$ teams compete in a curling competition where each team plays every other team and no ties are allowed.  Officials decide that there will be two elimination rounds the first of which will eliminate all teams except for those which beat at least $7$ other teams.  The second elimination round will eliminate all teams which do not beat a majority of the other teams. The final competition will be among the teams which remain after the second elimination round.  
 \begin{enumerate} 
 	\item[(A)] Determine with proof the maximum number of teams which may remain after the first elimination round.  
+		\response{We know that there are ten initial teams, where each team will play each other team once.  This implies that there are ${10 \choose 2} = 45$ games, where each game results in a ``win''. We also know that a team must accumulate 7 wins to avoid elimination. If we distribute the wins so that the number of finalists is maximized, then each final team will only have 7 wins.  This implies that the number of finalist teams is $\frac{45}{7} = 6.428$. However, as there are no partial teams, the the maximum number of finalist teams is $\lfloor \frac{45}{7} \rfloor$ = 6.}  
 	\item[(B)] Determine with proof the maximum number of teams which may remain after the second elimination round.  
+		\response{The term ``majority'' is not defined in the problem statement, and so for this answer, I assume that majority means more than half. Consider the table given below:\\
+		\begin{center}
+		\begin{tabular}{|c | c | c | c |}
+			\# of Teams & \# of Games & \# Required Wins &$\lfloor \frac{\text{Game}}{\text{Wins}}\rfloor$\\ \hline
+			6 & 15 & 4 & 3\\
+			5 & 10 & 4 & 2\\
+			4 & 6 & 3 & 2\\
+			3 & 3 & 2 & 1\\
+			2 & 1 & 1 & 1\\
+		\end{tabular}
+		\end{center}
+		The first, second, third and fourth columns represent the number of potential finalist teams, the number of games to be played, the number of required wins, and the number of teams with exactly the right number of wins respectively, where the number of finalist teams that move on (the fourth column) is computed the same as in part A. We will observe that the largest number of teams that pass the second round is $3$.}
 \end{enumerate} 
 \noindent{\bf Part Two: Strong Tournaments.}  Recall that a directed $D$ graph is {\bf strong} if between any pair of vertices $x$ and $y$, there is an $x,y$-path, and a $y,x$- path.  
 \begin{enumerate} 
-	\item[(A)] Prove the following theorem:  \emph{In any strong tournament $T$ on at least $5$ vertices, there exist two distinct vertices $x$ and $y$ such that $T-x$ and $T-y$ are both strong.} Prove or disprove whether the above theorem with conclusion ``\emph{such that $T - x - y$ is strong}'' is true (where $x$ and $y$ are the vertices found in the preceding part).  
+	\item[(A)] Prove the following theorem:  \emph{In any strong tournament $T$ on at least $5$ vertices, there exist two distinct vertices $x$ and $y$ such that $T-x$ and $T-y$ are both strong.} Prove or disprove whether the above theorem with conclusion ``\emph{such that $T - x - y$ is strong}'' is true (where $x$ and $y$ are the vertices found in the preceding part). 
+		\response{I understand this question to be asking me to prove that there exist two distinct vertices $x$ and $y$ such that if both are removed from $T$ at the same time, then $T$ will remain strong. First we consider the case where the first vertex, $x$ is removed. When $x$ is removed, the vertices against whom $x$ won are at risk, meaning that paths to them may be disrupted. If there exists a vertex which has lost at least twice, than one of its winners (or parent vertices) may be removed without it becoming an `orphaned' vertex.  Any path that must have passed through this vertex will still be valid as any vertex can still reach its remaining parent, by the definition of strong. We must prove that for a tournament with four or move vertices, there must be at least one vertex with two or more loses. \\[1em]
+		We know that the number of losses is equal to the number of games, that is ${n \choose 2}$.  Therefore, $x$ can be removed for all values of $n$ that satisfy
+		\begin{equation*}
+			{n \choose 2} \ge n + 1
+		\end{equation*}
+		because even if all losses are distributed, one vertex must still lose twice. By substituting definitions and algebra-fooing in the usual sense, we show that
+		\begin{equation*}\begin{aligned}
+			{n \choose 2} \ge n + 1 \implies &\frac{n!}{2!(n - 2)!} \ge n + 1 \\	
+						\implies &\frac{n!}{2!(n - 2)!} \ge n + 1 \\	
+						\implies & \frac{n(n-1)(n-2)!}{2(n-2)!} \ge n + 1 \\
+						\implies & \frac{n(n-1)}{2} \ge n + 1.
+		\end{aligned}\end{equation*}}
+		The above constraint is satistied with equality for $n \approx 3.5616$ so that $\frac{n(n-1)}{2} \ge n + 1 \forall n \ge 4$.  If $n = 5$, then we remove $x$, making $n = 4$. We can then select another vertex, $y$, as $n$ is still greater than or equal to $4$. Therefore, if $n \ge 5$, then there are at least two vertices $x$ and $y$ that can be removed such that $T - x - y$ is strong.
 	\item[(B-1)] Let $T$ be a tournament on $n \geq 3$ vertices and let $s$ be a vertex of $T$.  Please prove the following statement: \emph{$T$ is strong if and only if for every vertex $t \in V(T) \setminus \{s\}$ there is an $s,t$-path and a $t,s$-path.}  Is this statement true if $T$ is a digraph (not necessarily a tournament).  
+		\response{This proof will consist of two parts. In the first, we show that if $T$ is strong, then $\forall t \in V(T)\setminus s$ there exists an $s,t$ path and a $t,s$ path. In the second we will show that if $\forall t \in V(T)\setminus s$ there exists an $s,t$ path and a $t,s$ path then $T$ is strong.\\[1em]
+		{\it Claim: } If $T$ is strong, then for every $t \in V(T)$, there exists a $s,t$ path and a $t,s$ path. \\[1em]
+		{\it Proof: } By the definition of strong, we know that there exists a path from each vertex in $T$ to every other vertex in $T$. Therefore, as both $s$ and $t$ are elements of $V(T)$, then there exists an $s,t$ and $t,s$ path.\\[1em]
+		{\it Claim: } If for every $t \in V(T)$, there exists a $s,t$ path and a $t,s$ path, then $T$ is strong.\\[1em]
+		{\it Proof: } We desire to show that if for every $t \in V(T)$, there exists a $s,t$ path and a $t,s$ path, then for every $t_1,t_2 \in V(T)$, there exists a $t_1,t_2$ and a $t_2,t_1$ path.Let $t_1,t_2 \in V(T)$ and suppose that for every $t \in V(T)$, there exists a $s,t$ path and a $t,s$ path. This implies that there exists a $t_1,s$ path and a $s,t_2$ path. These two paths can be concatenated to form a $t_1,t_2$ path.  We can also form a $t_2,t_1$ path by the same logic making $T$ strong.}
 	\item[(B-2)] Suppose you have an algorithm $\mathcal{A}$ that determines whether there is a path from $x$ to $y$, where $x$ and $y$ are vertices in a digraph.  Suppose $\mathcal{A}$, when given a pair of vertices and a digraph $D$, performs this calculation with $M$ operations in the worst case.  How many operations, in the worst case, are needed to use $\mathcal{A}$ to determine whether $D$ is strong using the standard definition of `strong'?  How many operation, in the worst case, are needed if the alternative definition of `strong' proved in B-1?
+		\response{If we use the traditional definition of strong, or $\forall \ t_1, t_2 \in V(T), \exists \ t_1,t_2-\text{path}$ and $\exists \ t_2,t_1-\text{path}$ then we must use the algoritihm ${n \choose 2} = \frac{n(n-1)}{2}$ times so that the number of operations is $\frac{Mn(n-1)}{2}$. If we use the alternative definitiion of `strong' as proved in B-1, we only need compute the paths from any vertex to $s$ and vica-versa, leading to 2(n-1) iterations so that the number of computations is 2M(n-1).} 
 \end{enumerate}
 \noindent{\bf Part Three: Queens.}  Let $n$ and $q$ be positive integers with $q \leq n$.  Define an $(n,q)$-tournament to be a tournament on $n$ vertices with exactly $q$ queens.  In this sub-experience, you will determine all possible values of $n$ and $q$ for which there exists an $(n,q)$-tournament.  Specifically please prove the following theorem.\\ 
 \noindent {\bf Theorem 1.3.1:}  \emph{There exists an $(n,q)$-tournament for all positive integers $n$ and $q$ with $n \geq q \geq 1$, except for $q =2$ and $n$ arbitrary, and $n=q =4$.}\\
