@@ -9,13 +9,17 @@
 \usepackage{fancyhdr}
 \usepackage{xcolor}
 \usepackage{tikz}
+\usetikzlibrary{arrows, arrows.meta}
 \usepackage[normalem]{ulem} % for strike through text
 \usepackage{multicol}
+\pgfdeclarelayer{bg}
+\pgfsetlayers{bg,main}
 \setlength{\headheight}{0in}
 
 \newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip/2}\leavevmode\\[0.05in]}
 \newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
-\newcommand{\response}[1]{\begin{itemize} \item {\bf Response: } #1 \end{itemize}}
+\newcommand{\response}[1]{\leavevmode\\[0.05in]{\bf Response: } #1 \leavevmode\\[0.05in]}
+\newcommand{\proof}[1]{\leavevmode\\[0.05in]{\bf Proof: }#1 \leavevmode\\[0.05in]}
 \pagestyle{fancy}
 \rhead{\today}
 \lhead{Daniel Mortensen}
@@ -67,13 +71,63 @@
 		\response{If we use the traditional definition of strong, or $\forall \ t_1, t_2 \in V(T), \exists \ t_1,t_2-\text{path}$ and $\exists \ t_2,t_1-\text{path}$ then we must use the algoritihm ${n \choose 2} = \frac{n(n-1)}{2}$ times so that the number of operations is $\frac{Mn(n-1)}{2}$. If we use the alternative definitiion of `strong' as proved in B-1, we only need compute the paths from any vertex to $s$ and vica-versa, leading to 2(n-1) iterations so that the number of computations is 2M(n-1).} 
 \end{enumerate}
 \noindent{\bf Part Three: Queens.}  Let $n$ and $q$ be positive integers with $q \leq n$.  Define an $(n,q)$-tournament to be a tournament on $n$ vertices with exactly $q$ queens.  In this sub-experience, you will determine all possible values of $n$ and $q$ for which there exists an $(n,q)$-tournament.  Specifically please prove the following theorem.\\ 
-\noindent {\bf Theorem 1.3.1:}  \emph{There exists an $(n,q)$-tournament for all positive integers $n$ and $q$ with $n \geq q \geq 1$, except for $q =2$ and $n$ arbitrary, and $n=q =4$.}\\
-\noindent My suggestion is that you use the Principle of Mathematical Induction and the following lemmas (which I ask that you prove as well).\\
-\noindent {\bf Lemma 1.3.2:} \emph{There exists a $(1,1)$-tournament.}\\
-\noindent {\bf Lemma 1.3.3:} \emph{There does not exist a $(4,4)$-tournament.}\\
-\noindent {\bf Lemma 1.3.4:} \emph{There is a $(6,6)$-tournament.}\\
-\noindent {\bf Lemma 1.3.5:} \emph{If there exists an $(k,k)$-tournament, then there exists an $(k+2, k+2)$-tournament, where $k$ is a positive integer.}\\
-\noindent {\bf Lemma 1.3.6:} \emph{For every positive integer $n$ except $2$ and $4$, there exists an $(n,n)$-tournament.} \\[2em]
+\noindent {\bf Theorem 1.3.1:}  \emph{There exists an $(n,q)$-tournament for all positive integers $n$ and $q$ with $n \geq q \geq 1$, except for $q =2$ and $n$ arbitrary, and $n=q =4$.}
+\response{ In this proof we begin by proving several Lemmas:\\[0.05in]
+	\noindent {\bf Lemma 1.3.2:} \emph{There exists a $(1,1)$-tournament.}
+	\proof{If there is only one vertex in a tournament, then the path to itself is zero, and thus the path between the vertex and all other vertices (itself) is two or less.}
+	\noindent {\bf Lemma 1.3.3:} \emph{There does not exist a $(4,4)$-tournament.}
+	\proof{We have already proven this in homework 6 problem 2.}
+	\noindent {\bf Lemma 1.3.4:} \emph{There is a $(6,6)$-tournament.}
+	\proof{Consider the partial tournament represented by the adjacency matrix:
+		\begin{equation*}
+			A = \begin{bmatrix}
+				0 & 1 & 0 & 1 & 0 & 0 \\
+				0 & 0 & 1 & 0 & 0 & 1 \\
+				1 & 0 & 0 & 1 & 0 & 0 \\
+				0 & 0 & 0 & 0 & 1 & 1 \\
+				1 & 1 & 0 & 0 & 0 & 0 \\
+				0 & 0 & 1 & 0 & 1 & 0 \\
+			\end{bmatrix}.
+		\end{equation*}
+		Note how $A + A^2$ contains either a 1 or 2 in each non-diagonal element.  This implies that each vertex is a queen as the path between any two pairs of vertices is less than three.}
+	\noindent {\bf Lemma 1.3.5:} \emph{If there exists an $(k,k)$-tournament, then there exists an $(k+2, k+2)$-tournament, where $k$ is a positive integer.}
+	\proof{Consider a $(k,k)$ tournament, and two additional vertices. If the two additional vertices constructed such that
+		\begin{center}\begin{tikzpicture}
+			\foreach \lab [count=\c, evaluate=\c as \ang using {90 + 120*\c}] in {(k,k), v_1, v_2}
+			{ 
+				\node[circle, draw=black, fill=blue!20, minimum size=0.5in](\c) at (\ang:1in){$\lab$};
+			}
+			\draw[-implies, double equal sign distance] (3) -- (1);
+			\draw[-implies, double equal sign distance] (1) -- (2);
+			\draw[-{Stealth[scale=2]}](2) -- (3);
+		\end{tikzpicture}\end{center} then $v_2$ will be distance $1$ from every vertex in the $(k,k)$ tournament, and distanace two from $v_1$, every element in the $(k,k)$ tournament will be distance 1 from $v_1$ and distance 2 from $v_2$, and $v_1$ will be distance one form $v_2$ and distance 2 from every vertex in the $(k,k)$ tournament so that each vertex in the new $(k+2,k+2)$ tournament will be a queen.}
+	\noindent {\bf Lemma 1.3.6:} \emph{For every positive integer $n$ except $2$ and $4$, there exists an $(n,n)$-tournament.} 
+	\proof{Per Lemma 1.3.5, and Lemman 1.3.2, we know that $(k,k)$ exists for all odd $k$.  Per Lemma 1.3.5 and Lemma 1.3.4, we also know that $(k,k)$ exists for all even $k$ greater than $4$. Therefore, for every positive integer $k$ except $2$ and $4$, there exists an $(n,n)$-tournament.}
+	\noindent {\bf Lemma 1.3.7:} There cannot exist a tournament with exactly two queens.
+	\proof{We have shown this in homework 6 problem 4}
+	\noindent {\bf Lemma 1.3.8:} If there exists an (n,q) tournament, then there also exists an (n+1,q) tournament.
+	\proof{Suppose there exists an $(n,k)$ tournament. If we add an additional vertex to the tournament such that this vertex loses to each previously defined vertex, then the resulting tournament will have $k$ queens as each queen can reach the new vertex with distance 1 and the new vertex cannot be a queen as the distance between it an any other vertex is greater than 2.}
+	\noindent {\bf Theorem 1.3.1:} {\it There exists an (n,q)-tournament for all positive integers n and q with $n \ge q \ge 1$, except for $q=2$ and n arbitrary, and $n=q=4$.} 
+	\proof{From Lemma 1.3.8, if there exists a $(n,k)$ tournament for every $n$ and $k$ where a $(k,k)$ tournament already exists. From Lemma 1.3.6, we know that a $(k,k)$ tournament exists for all $k$ except $k=2$ and $k=4$. The $k=2$ case need not be considered further as no tournament can have exactly two queens, per homework 6 problem 4. We know that a $(4,4)$ tournament does not exist from Lemma 1.3.3, and thus the final proof is to show that at $(5,4)$ tournament exists, which we do by example as follows:
+	\begin{center}\begin{tikzpicture}
+	\foreach \lab [count=\c, evaluate=\c as \ang using {18 + 72*\c}] in {v_1, v_2, v_3, v_4, v_5}
+	{
+			\node[circle, draw=black, fill=blue!20, minimum size=0.5in](\c) at (\ang:1in){$\lab$};
+	}
+	\draw[-{Stealth[scale=2]}](1) -- (5);
+	\draw[-{Stealth[scale=2]}](2) -- (1);
+	\draw[-{Stealth[scale=2]}](2) -- (5);
+	\draw[-{Stealth[scale=2]}](2) -- (3);
+	\draw[-{Stealth[scale=2]}](3) -- (1);
+	\draw[-{Stealth[scale=2]}](3) -- (4);
+	\draw[-{Stealth[scale=2]}](4) -- (2);
+	\draw[-{Stealth[scale=2]}](4) -- (1);
+	\draw[-{Stealth[scale=2]}](5) -- (4);
+	\draw[-{Stealth[scale=2]}](5) -- (3);
+	\end{tikzpicture}\end{center}.
+	Hence, there exists a $(5,4)$ tournament which by Lemma 1.3.8 implies that there exists a $(n,4)$ tournament for all $n > 4$, which in turn in conjunction with the other statements in this proof proves that the claim is true.
+	}
+}
 \noindent \underline{\hspace{5in}}\\[2em]
 \noindent \maltese \hspace{1ex}{\bf Sub-Experience Two: An Optimization Problem}\\
 \vspace{2em}
@@ -111,8 +165,139 @@
 \noindent(\emph{No outside resources, please}) We have defined space stations, and developed notation in class, in particular see \emph{Meeting Thirty-Three}.  Please use that notation in your responses to these prompts.  To remind: $S_w$ denotes a (specific) $w$-walled station, $\oint S_w$ denotes its interior, $\partial S_w$ denotes its boundary (its walls and corners).  Let's use $V(S_w)$ to denote the corners of $S_w$ and $W(S_w)$ to denote its walls.\\
 \begin{enumerate}
 	\item {\bf Watched Eyes.} The function $gg(w)$ is the maximum number of robot eyes (REs) required to protect any $w$-walled station which can be seen by at least one other RE.  Please make a conjecture for the value of $gg(w)$.  The points you earn from your response (your conjecture) will be proportional to the type and quantity of justification you give.  
+		\response{We define an upper and lower bound for $gg(w)$.  The lower bound covers the case where no additional REs are needed, that is that the solution given in $\lfloor \frac{w}{3} \rfloor$ results in each RE being seen by another.  The upper bound comes from the assumption that no RE can see another, and each requires a ``companion'' RE so that each may by seen.  Thus, the upper bound is $2\lfloor\frac{w}{3}\rfloor$ so that $\lfloor\frac{w}{3}\rfloor \le gg(w) \le 2\lfloor\frac{w}{3}\rfloor$.}
 	\item {\bf Rectangular Stations.}  Define the function $g_{\perp}(w)$ to be the maximum number of REs required to protect a $w$-walled station whose interior angles between walls are each either $90^{\circ}$ or $270^{\circ}$.  Please find the value for $g_{\perp}(w)$ and prove the value you find is correct.
+		\response{We first define an algorithm which places REs at quasi-optimal locations, and show that the number of REs used by this algorithm is sufficient for all cases.  We next give a pathological example which demonstrates that the number of REs used by this algorithm is necessary in that case. The algorithm works as follows:
+		\begin{enumerate}
+			\item Define a grid over the station and establish vertices at each grid point
+			\item Define rectangles between each adjacent set of four grid points
+			\item Color the vertices one of four colors such that there are no shared colors for each rectangle.
+			\item Find the color which is used the fewest number of times, and place a RE at the location of each color instance
+		\end{enumerate}
+		We know that the number of REs used in this algorithm is sufficient because each rectangular subset of the station is adjacent to all four colors. Note how this algorithm places $\lfloor \frac{w}{4} \rfloor$ REs for each station, indicating that $g_{\perp}(w) \le \lfloor \frac{w}{4}\rfloor$. \\[1.5in]
+		Next, we define a pathological example for which $\lfloor \frac{w}{4} \rfloor$ REs is necessary. Consider the station 
+			\begin{center}\begin{tikzpicture}
+				\node(node00) at (0,0){};
+				\node(node10) at (1,0){};
+				\node(node20) at (2,0){};
+				\node(node30) at (3,0){};
+				\node(node40) at (4,0){};
+				\node(node50) at (5,0){};
+				\node(node01) at (0,1){};
+				\node(node11) at (1,1){};
+				\node(node21) at (2,1){};
+				\node(node31) at (3,1){};
+				\node(node41) at (4,1){};
+				\node(node51) at (5,1){};
+				\node(node02) at (0,2){};
+				\node(node12) at (1,2){};
+				\node(node22) at (2,2){};
+				\node(node32) at (3,2){};
+				\node(node42) at (4,2){};
+				\node(node52) at (5,2){};
+				\draw[-] (node02.center) -- (node12.center);
+				\draw[-] (node12.center) -- (node11.center);
+				\draw[-] (node11.center) -- (node21.center);
+				\draw[-] (node21.center) -- (node22.center);
+				\draw[-] (node22.center) -- (node32.center);
+				\draw[-] (node32.center) -- (node31.center);
+				\draw[-] (node31.center) -- (node41.center);
+				\draw[-] (node41.center) -- (node42.center);
+				\draw[-] (node42.center) -- (node52.center);
+				\draw[-] (node52.center) -- (node51.center);
+				\draw[-] (node51.center) -- (node50.center);
+				\draw[-] (node50.center) -- (node40.center);
+				\draw[-] (node40.center) -- (node30.center);
+				\draw[-] (node30.center) -- (node20.center);
+				\draw[-] (node20.center) -- (node10.center);
+				\draw[-] (node10.center) -- (node00.center);
+				\draw[-] (node00.center) -- (node01.center);
+				\draw[-] (node01.center) -- (node02.center); 
+			\end{tikzpicture}\end{center}                                                    
+			where the pattern can be extended indefinitely for any $w$. If we apply the algorithm and color each vertex, we get
+			\begin{center}\begin{tikzpicture}
+				\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node00) at (0,0){};%{00};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node10) at (1,0){};%{10};%
+				\node[circle, draw=black, fill=green!20,  minimum size=0.1in] (node20) at (2,0){};%{20};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node30) at (3,0){};%{30};%
+				\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node40) at (4,0){};%{40};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node50) at (5,0){};%{50};%
+				\node[circle, draw=black, fill=green!20,  minimum size=0.1in] (node01) at (0,1){};%{01};%
+				\node[circle, draw=black, fill=yellow!20, minimum size=0.1in] (node11) at (1,1){};%{11};%
+				\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node21) at (2,1){};%{21};%
+				\node[circle, draw=black, fill=yellow!20, minimum size=0.1in] (node31) at (3,1){};%{31};%
+				\node[circle, draw=black, fill=green!20,  minimum size=0.1in] (node41) at (4,1){};%{41};%
+				\node[circle, draw=black, fill=yellow!20, minimum size=0.1in] (node51) at (5,1){};%{51};%
+				\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node02) at (0,2){};%{02};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node12) at (1,2){};%{12};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node22) at (2,2){};%{22};%
+				\node[circle, draw=black, fill=green!20,  minimum size=0.1in] (node32) at (3,2){};%{32};%
+				\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node42) at (4,2){};%{42};%
+				\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node52) at (5,2){};%{52};%
+				\draw[-] (node02.center) -- (node12.center);
+				\draw[-] (node12.center) -- (node11.center);
+				\draw[-] (node11.center) -- (node21.center);
+				\draw[-] (node21.center) -- (node22.center);
+				\draw[-] (node22.center) -- (node32.center);
+				\draw[-] (node32.center) -- (node31.center);
+				\draw[-] (node31.center) -- (node41.center);
+				\draw[-] (node41.center) -- (node42.center);
+				\draw[-] (node42.center) -- (node52.center);
+				\draw[-] (node52.center) -- (node51.center);
+				\draw[-] (node51.center) -- (node50.center);
+				\draw[-] (node50.center) -- (node40.center);
+				\draw[-] (node40.center) -- (node30.center);
+				\draw[-] (node30.center) -- (node20.center);
+				\draw[-] (node20.center) -- (node10.center);
+				\draw[-] (node10.center) -- (node00.center);
+				\draw[-] (node00.center) -- (node01.center);
+				\draw[-] (node01.center) -- (node02.center); 
+				\draw[dashed] (node01.center) -- (node11.center);
+				\draw[dashed] (node21.center) -- (node31.center);
+				\draw[dashed] (node41.center) -- (node51.center);
+				\draw[dashed] (node11.center) -- (node10.center);
+				\draw[dashed] (node21.center) -- (node20.center);
+				\draw[dashed] (node31.center) -- (node30.center);
+				\draw[dashed] (node41.center) -- (node40.center);
+			\end{tikzpicture}\end{center}                                                    
+			so that yellow is the least used. This indicates that there are three REs, which is consistent with a 12 walled scenario. Because the given station can be expanded horizontally indefinitely, this holds for all $w$. Thus $\lfloor \frac{w}{4} \rfloor$ is sometimes necessary, making $g_{\perp}(w) = \lfloor \frac{w}{4} \rfloor$} 
 	\item {\bf Watched Eyes in Rectangular Stations.} Define the function $gg_{\perp} (w)$ to be the maximum number of REs required to protect a $w$-walled rectangular station such that each RE can be seen by at least one other RE. Please determine the value for $gg_{\perp}(w)$ and prove the value is correct.
+		\response{For a space station to have complete coverage with the fewest number of REs possible, many scenarios require the robot eyes to operate with no dual coverate such that each RE is not visible to any other RE.  This ``cutoff'' happens around corners, and only needs one additional RE per pair of REs to make each RE visible. Therefore it is sufficient to include one additional RE per pair of original REs, (rounded up in case the number of REs is odd).  Therefore, $gg_{\perp}(w) \le \lfloor \frac{w}{4} \rfloor + \lceil \frac{1}{2}\lfloor \frac{w}{4} \rfloor \rceil$. Next we present an example where this is necessary to indicate equality.  Consider the scenario given as
+		\begin{center}\begin{tikzpicture}
+			\draw (0,0) -- (0,3) -- (3,3) -- (3,1) -- (4,1) -- (4,3) -- (7,3) -- (7,1) -- (8,1) -- (8,3) -- (11,3) -- (11,2) -- (9,2) -- (9,0) -- (6,0) -- (6,2) -- (5,2) -- (5,0) -- (2,0) -- (2,2) -- (1,2) -- (1,0) -- (0,0);
+		\end{tikzpicture}\end{center} 
+		where REs are placed such that there is minimal overlap in coverage as in
+		\begin{center}\begin{tikzpicture}
+			\draw (0,0) -- (0,3) -- (3,3) -- (3,1) -- (4,1) -- (4,3) -- (7,3) -- (7,1) -- (8,1) -- (8,3) -- (11,3) -- (11,2) -- (9,2) -- (9,0) -- (6,0) -- (6,2) -- (5,2) -- (5,0) -- (2,0) -- (2,2) -- (1,2) -- (1,0) -- (0,0);
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node12) at (1,2){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node31) at (3,1){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node52) at (5,2){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node12) at (7,1){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node12) at (9,2){};%{12};%
+		\end{tikzpicture}\end{center} 
+		which then requires one additional RE for each pair so that both may be seen, for example:
+			\begin{center}\begin{tikzpicture}
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node12) at (1,2){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node31) at (3,1){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node52) at (5,2){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node71) at (7,1){};%{12};%
+			\node[circle, draw=black, fill=blue!20,   minimum size=0.1in] (node92) at (9,2){};%{12};%
+			\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node22) at (3,3){};%{12};%
+			\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node62) at (7,3){};%{12};%
+			\node[circle, draw=black, fill=red!20,    minimum size=0.1in] (node102) at (11,3){};%{12};%
+			\begin{pgfonlayer}{bg}
+				\draw (0,0) -- (0,3) -- (3,3) -- (3,1) -- (4,1) -- (4,3) -- (7,3) -- (7,1) -- (8,1) -- (8,3) -- (11,3) -- (11,2) -- (9,2) -- (9,0) -- (6,0) -- (6,2) -- (5,2) -- (5,0) -- (2,0) -- (2,2) -- (1,2) -- (1,0) -- (0,0);
+				\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (node22) -- (node12);
+				\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (node22) -- (node31);
+				\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (node52) -- (node62);
+				\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (node62) -- (node71);
+				\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (node92) -- (node102);
+			\end{pgfonlayer}
+
+		\end{tikzpicture}\end{center} 
+		}
+
+
 \end{enumerate}
 \noindent \underline{\hspace{5in}}
 \end{document}
