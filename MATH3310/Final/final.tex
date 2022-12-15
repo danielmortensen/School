@@ -10,6 +10,15 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{arrows, arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usepackage{forloop}
+\tikzset{shifted path/.style args={from #1 to #2 by #3}{insert path={
+	let \p1=($(#1.east)-(#1.center)$),
+	\p2=($(#2.east)-(#2.center)$),\p3=($(#1.center)-(#2.center)$),
+	\n1={veclen(\x1,\y1)},\n2={veclen(\x2,\y2)},\n3={atan2(\y3,\x3)} in
+	(#1.{\n3+180+asin(#3/\n1)}) to (#2.{\n3-asin(#3/\n2)})
+	}}}
 \usepackage[normalem]{ulem} % for strike through text
 \usepackage{multicol}
 \setcounter{MaxMatrixCols}{20}
@@ -149,35 +158,72 @@
 \response{{\bf Two: } Begin with a single vertex, and build a graph where that vertex has degree three and distance 2 as
 \begin{center}
 \begin{tikzpicture}
+	\newcommand\distOne{2}
+	\newcommand\distTwo{1}
 	\node[circle, draw=black, fill=red!20, minimum size=0.3in] (node1) at (0,0){1};
-	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node2) at (120:1.3){2};
-	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node3) at (240:1.3){3};
-	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node4) at (0:1.3){4};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node2) at (-2*\distOne,-0.75*\distOne){2}; 
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node3) at (0          ,-0.75*\distOne){3};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node4) at ( 2*\distOne,-0.75*\distOne){4};
 	\draw[-] (node1) -- (node2);
 	\draw[-] (node1) -- (node3);
 	\draw[-] (node1) -- (node4);
-	\draw[-] (node2) -- ++(180:1.3) node (node5) [circle, minimum size=0.3in, draw, fill=green!20] {5};
-	\draw[-] (node2) -- ++(60:1.3) node (node6) [circle,  minimum size=0.3in, draw, fill=green!20] {6};
-	\draw[-] (node4) -- ++(300:1.3) node (node7) [circle,  minimum size=0.3in, draw, fill=green!20] {7};
-	\draw[-] (node4) -- ++(60:1.3) node (node8) [circle,  minimum size=0.3in, draw, fill=green!20] {8};
-	\draw[-] (node3) -- ++(285:1.3) node (node9) [circle,  minimum size=0.3in, draw, fill=green!20] {9};
-	\draw[-] (node3) -- ++(195:1.3) node (node10) [circle,  minimum size=0.3in, draw, fill=green!20] {10};
+	\draw[-] (node2) -- ++(-\distTwo,-\distTwo) node (node5)  [circle, minimum size=0.3in, draw, fill=green!20] {5};
+	\draw[-] (node2) -- ++( \distTwo,-\distTwo) node (node6)  [circle, minimum size=0.3in, draw, fill=green!20] {6};
+	\draw[-] (node4) -- ++(-\distTwo,-\distTwo) node (node7)  [circle, minimum size=0.3in, draw, fill=green!20] {9};
+	\draw[-] (node4) -- ++( \distTwo,-\distTwo) node (node8)  [circle, minimum size=0.3in, draw, fill=green!20] {10};
+	\draw[-] (node3) -- ++(-\distTwo,-\distTwo) node (node9)  [circle, minimum size=0.3in, draw, fill=green!20] {7};
+	\draw[-] (node3) -- ++( \distTwo,-\distTwo) node (node10) [circle, minimum size=0.3in, draw, fill=green!20] {8};
+\end{tikzpicture}\end{center}.
+	This type of graph forms an upper bound on the number of vertices.  If a vertex were to be added, it would have to be done at a `leaf' vertex, which would create a maximum distance of three, invalidating the distance two constraint. As it stands, the distance from one `leaf' vertex to another is either two or four. Additionally, the only vertices with available degrees are the `green', or leaf vertices. Let the leaf vertices be divided into groups according to their parent vertex so that they make up the three groups: $(5,6)$, $(7,8)$, and $(9,10)$. If each vertex from one group forms an edge between itself and the vertex from the other two groups, then the graph will have max distance two. This graph can be drawn as
+\begin{center}
+\begin{tikzpicture} 
+	\newcommand\distOne{2}
+	\newcommand\distTwo{1}
+	\node[circle, draw=black, fill=red!20, minimum size=0.3in] (node1) at (0,0){1};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node2) at (-2*\distOne,-0.75*\distOne){2}; 
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node3) at (0          ,-0.75*\distOne){3};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node4) at ( 2*\distOne,-0.75*\distOne){4};
+	\draw[-] (node1) -- (node2);
+	\draw[-] (node1) -- (node3);
+	\draw[-] (node1) -- (node4);
+	\draw[-] (node2) -- ++(-\distTwo,-\distTwo) node (node5)  [circle, minimum size=0.3in, draw, fill=green!20] {5};
+	\draw[-] (node2) -- ++( \distTwo,-\distTwo) node (node6)  [circle, minimum size=0.3in, draw, fill=green!20] {6};
+	\draw[-] (node4) -- ++( \distTwo,-\distTwo) node (node9)  [circle, minimum size=0.3in, draw, fill=green!20] {10};
+	\draw[-] (node4) -- ++(-\distTwo,-\distTwo) node (node10)  [circle, minimum size=0.3in, draw, fill=green!20] {9};
+	\draw[-] (node3) -- ++(-\distTwo,-\distTwo) node (node7)  [circle, minimum size=0.3in, draw, fill=green!20] {7};
+	\draw[-] (node3) -- ++( \distTwo,-\distTwo) node (node8) [circle, minimum size=0.3in, draw, fill=green!20] {8};
+	\draw[-] (node5) to[out=270,in=270] (node7);
+	\draw[-] (node5) to[out=270,in=270] (node9);
+	\draw[-] (node6) to[out=270,in=270] (node8);
+	\draw[-] (node6) to[out=270,in=270] (node10);
+	\draw[-] (node7) to[out=270,in=270] (node10);
+	\draw[-] (node8) to[out=270,in=270] (node9);
 \end{tikzpicture}\end{center}
-As it stands, the distance from one `leaf' vertex to another is either two or four. If we include edges between the vertices with distance four, then the degree of these vertices will exceed three.  Therefore  the vertices 5,6,7,8,9, and 10 must be consolidated into two vertices so that the distance from one vertex to another two or less as shown below.  
-	\begin{center}\begin{tikzpicture}
-		\node[circle, draw=black, fill=red!20, minimum size=0.3in] (node1) at (0,0){1};
-		\draw[-] (node1) to[out=240, in=30, bend right] ++(-2,-2) node (node2) [circle, minimum size=0.3in, draw, fill=blue!20] {2};
-		\draw[-] (node2) to[out=210, in=120, bend right] ++(1,-2) node (node5) [circle, minimum size=0.3in, draw, fill=green!20] {5};
-		\draw[-] (node1) -- ++(0,-2) node (node3) [circle, minimum size=0.3in, draw, fill=blue!20]{3};
-		\draw[-] (node3) to[out=270,in=60, bend right] (node5);
-		\draw[-] (node1) to[out=300,in=150, bend left] ++(2,-2) node (node4) [circle, minimum size=0.3in, draw, fill=blue!20] {4}; 
-		\draw[-] (node4) to[out=210,in=30, bend left] (node5);
-		\draw[-] (node2) to[out=300,in=180, bend right] ++(3,-2) node (node6) [circle, minimum size=0.3in, draw, fill=green!20] {6}; 
-		\draw[-] (node3) to[out=270,in=120, bend left] (node6);
-		\draw[-] (node4) to[out=180,in=30, bend left] (node6);
-	\end{tikzpicture}\end{center}
-	Therefore, the upper bound for the number of vertices in all possible realizations of $H$ with max degree three and max distance 3 is 5 so that $N(2,3) = 5$.
-} 
+which is none other than the Petersen graph.
+\begin{center}
+\begin{tikzpicture}
+	\newcommand\distOne{2}
+	\newcommand\distTwo{1}
+	\node[circle, draw=black, fill=red!20, minimum size=0.3in] (node1) at (0,0){1,2};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node2) at (-2*\distOne,-0.75*\distOne){3,4}; 
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node3) at (0          ,-0.75*\distOne){3,5};
+	\node[circle, draw=black, fill=blue!20, minimum size=0.3in] (node4) at ( 2*\distOne,-0.75*\distOne){4,5};
+	\draw[-] (node1) -- (node2);
+	\draw[-] (node1) -- (node3);
+	\draw[-] (node1) -- (node4);
+	\draw[-] (node2) -- ++(-\distTwo,-\distTwo) node (node5)  [circle, minimum size=0.3in, draw, fill=green!20] {2,5};
+	\draw[-] (node2) -- ++( \distTwo,-\distTwo) node (node6)  [circle, minimum size=0.3in, draw, fill=green!20] {1,5};
+	\draw[-] (node4) -- ++( \distTwo,-\distTwo) node (node9)  [circle, minimum size=0.3in, draw, fill=green!20] {1,3};
+	\draw[-] (node4) -- ++(-\distTwo,-\distTwo) node (node10)  [circle, minimum size=0.3in, draw, fill=green!20] {2,3};
+	\draw[-] (node3) -- ++(-\distTwo,-\distTwo) node (node7)  [circle, minimum size=0.3in, draw, fill=green!20] {1,4};
+	\draw[-] (node3) -- ++( \distTwo,-\distTwo) node (node8) [circle, minimum size=0.3in, draw, fill=green!20] {2,4};
+	\draw[-] (node5) to[out=270,in=270] (node7);
+	\draw[-] (node5) to[out=270,in=270] (node9);
+	\draw[-] (node6) to[out=270,in=270] (node8);
+	\draw[-] (node6) to[out=270,in=270] (node10);
+	\draw[-] (node7) to[out=270,in=270] (node10);
+	\draw[-] (node8) to[out=270,in=270] (node9);
+\end{tikzpicture}\end{center} Thus $N(2,3) = 10$ as 10 forms both an upper bound, and lower bound per the example.} 
 	\response{{\bf Three: } We verify that $d_{\text{max}}(G) = 2$ by forming an adjacency matrix $A$ and showing that $A + A^2$ is non-zero for every non-diagonal element because $i,j$ element of $A^k$ the number of $k$-length paths from edge $i$ to edge $j$. From the figure given in the problem description, 
 		\begin{equation*}
 	%		     %              1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -204,37 +250,151 @@ As it stands, the distance from one `leaf' vertex to another is either two or fo
 	{\it Claim: } A $N(2,4)$ graph cannot have more then 17 vertices.\\[0.05in]
 	{\it Proof: } Define a graph where all vertices are within two steps of some central vertex. This vertex will connect to four vertices as the maximum degree in such a graph is four. Next, each of those vertices will connect to three additional vertices, so that the total number of vertices in the graph is 17.  If one more vertex is added, it must necessarily be distance three from the original central vertex so that the graph is not an $N(2,4)$ graph.\\[0.05in]
 	{\it Claim: }A $N(2,4)$ graph with 17 vertices does not exist.\\[0.05in]
-	{\it Proof: } To begin, we make several observations that form the foundation of this proof. First, recall that $N(2,4)$ graph with 17 vertices must connect each vertex to each other vertex in the graph in either one or two steps.  Let the edges that connect a central vertex to four other vertices be call 'primary` connections and the edges that allow a central vertex to reach additional vertices in two steps be `secondary' connections.  Each vertex must possess at least one primary or secondary connection to this central vertex. If each vertex contains four primary connections, then we know that a vertex will make at most 12 secondary connections, three for each vertex. This implies that each vertex can reach at most 16 other vertices in the graph in less than two steps. \\[0.05in]
-	\noindent If there exist multiple paths of either length one or two between two edges, then there is at least one vertex that cannot be reached within two steps. If there does exist multiple paths between two vertices, the lengths of these paths may either one or two. If one path is one and the other is two, then this forms a 3-cycle. If both paths are length two, then this forms a four-cycle. The remainder of this proof is to show that if there does not exist a three cycle in a 17 vertex $N(2,4)$ graph, then there must exist a four cycle, proving that there must be repeated repeated vertices and that the vertices in the cycle cannot reach all vertices in the graph in one or two steps. \\[0.05in]
-	{\it Claim: } If there are no 3-cycles in a 17 vertex $N(2,4)$ graph, then there must be a four cycle. \\[0.05in]
-	{\it Proof: } Here we assume there are no 3-cycles in a 17 vertex $N(2,4)$ graph. Having no 3-cycles in the graph implies that there cannot exist both a primary and secondary connection between two vertices so that if there is a path of length one, then there is not a path of length two, implying that
-	\begin{equation*}
-		A^2 = R - A + D_{d - 1}
-	\end{equation*}
-	where $R$ is a matrix of all ones, $A$ is the adjacency matrix for the graph, and $D_k$ is a diagonal matrix where each diagonal entry is $k$. Note that the number of 4-cycles that are not repeates of a two-cycle is given as 
-	\begin{equation}\label{eqn:fourCycle}
-		\text{Tr}(A^4 - A^2)
-	\end{equation}
-	where Tr$(\cdot)$ is the trace operator. If we expand Eqn. \ref{eqn:fourCycle} using the definition of $A^2$, we get \textcolor{red}{Made an algegra mistake (see paper on keyboard). Need to revisit the number of four-cycles representation. Not sure if the current formulation correctly removes all prior two-cycles.}
-	\begin{equation}\label{eqn:fourCycleDeveloped}\begin{aligned}
-		\text{Tr}(A^4 - A^2) &= \text{Tr}\left ( \left (R - A + D_{d-1} \right )\left (R - A + D_{d-1} \right ) - \left (R - A + D_{d-1} \right )\right ) \\
-				     &= \text{Tr}\left ( R^2 - RA + RD_{d-1} - RA + A^2 + AD_{d-1} + RD_{d-1} - AD_{d-1} + D^2_{d-1} -R + A - D_{d-1}\right )     \\
-				     &= \text{Tr}\left ( R^2 - 2RA + 2RD_{d-1} - 2AD_{d-1} + D_{d-1}^2 - R + A - D_{d-1} + A^2\right ) \\
-				     &= \text{Tr}\left ( R^2 - 2RA + 2RD_{d-1} - 2AD_{d-1} + D_{d-1}^2 - R + A - D_{d-1} + R - A + D_{d-1}\right ) \\
-				     &= \text{Tr}\left ( R^2 - 2RA + 2RD_{d-1} - 2AD_{d-1} + D_{d-1}^2\right ) \\ 
-	\end{aligned}\end{equation}
-	Note that in this case matrix multiplication is commutative as each matrix is symmetric. Additionally, note that $R^2 = Rn = RD_n$, $RA = Rd = RD_d$, and that $D^2_{d-1} = D_{(d - 1)^2}$ where $n$ is the number of vertices and $d$ is the degree of each vertex as all vertices have the same degree. These additional relationships allow us to express the results of Eqn. \ref{eqn:fourCycleDeveloped} as
-	\begin{equation*}\begin{aligned}
-		\text{Tr}(A^4 - A^2) = \text{Tr}\left ( RD_n - 2RD_d + 2RD_{d-1} - 2AD_{d-1} + D_{(d-1)^2}\right ) \\ 
-	\end{aligned}\end{equation*}
-	Next, observe that $\text{Tr}(CD_k) = k\text{Tr}(C)$ as $D_k$ is just the identity matrix multiplied by a constant $k$. Furthermore, note that $\text{Tr}(R) = n$, $\text{Tr}(A) = 0$ as $A$ is hollow, and $\text{Tr}(D_{(d - 1)^2}) = n(d-1)^2$. Also note that $\text{Tr}(A + B) = \text{Tr}(A) + \text{Tr}(B)$ as we are just adding matrices together element-wise and the trace just adds the diagonal elements of each matrix so that
-	\begin{equation*}\begin{aligned}
-		\text{Tr}(A^4 - A^2) &= n^2 - 2nd + 2n(d-1) - 0 + n(d-1)^2  \\
-		                     &= n^2 - 2nd + 2nd - n + nd^2 - 2nd + n \\
-				     &= n^2 - 2nd + nd^2 \\
-				     &= (n - d)^2
-	\end{aligned}\end{equation*}
-	so that the number of 4-cycles is zero only if $n = d$. Since $n = 17$ and $d = 4$, then this is not the case. Therefore there exist 4-cycles in the graph, which implies that there are vertices that cannot reach at least one vertex in one or two steps so that a $N(2,4)$ graph cannot exist with 17 vertices.
+	{\it Proof: } Consider a graph with 17 vertices where 16 of the vertices are all distance 2 from a center vertex.
+		\begin{center}\begin{tikzpicture}[every node/.style={circle, draw, fill=green!20, minimum size=0.3in}]
+			\node[fill=red!20](node0) at (0,0){0};
+
+			\foreach \iNode[evaluate=\iNode as \ang using {90*(\iNode- 1)}] in {1,...,4}
+			{
+				\draw[-] (node0) -- ++(\ang:1.5) node[fill=blue!20](\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + (\iChild- 1)*45}] in {5, 6, 7}
+			{
+				\draw[-] (1) -- ++(\ang:1.5) node(\iNode){\iNode}; 
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + 90 + (\iChild - 1)*45}] in {8, 9, 10}
+			{
+				\draw[-] (2) -- ++(\ang:1.5) node(\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + 2*90 + (\iChild - 1)*45}] in {11, 12, 13}
+			{
+				\draw[-] (3) -- ++(\ang:1.5) node(\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + 3*90 + (\iChild - 1)*45}] in {14, 15, 16}
+			{
+				\draw[-] (4) -- ++(\ang:1.5) node(\iNode){\iNode};
+			} 
+		\end{tikzpicture}\end{center} 
+		We know that the first and second level, or ``red'' and ``blue'' vertices are saturated so that they can no longer form edges. This implies that each ``green'' vertex must connect to one other ``green'' vertex that touches a $1, 2, 3$ or $4$ vertex respectively. This problem can be simplified into graph where vertices are grouped based on their parent. Let groups be decided by the side of the square given below.
+		\begin{center}\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iChild) at (\x,\y){\iLabel};
+			}
+		\end{tikzpicture}\end{center}
+		The remainder of this proof will demonstrate that in forming edges with the given constraints, we are forced to form a three or 4-cycle. If we form a 3 or 4-cycle, this causes vertices to be reachable by multiple paths so that the vertices in the cycle are unable to reach at least one other vertex in one or two steps. Without loss of generality, let the first side be paired as
+		\begin{center}\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+		\end{tikzpicture}\end{center}
+		Again, without loss of generality, we begin  filling in connections on the left group starting with vertex 13.  This vertex cannot link to vertex 7 as this would cause a 3-cycle.  Therefore it must select either edges 6 or 5 from the right group.  Both are equivalent, so we select vertex 5.  Next, vertex 11 must select vertex 6 otherwise vertex 12 would become part of a thre cycle. This yields
+
+		\begin{center}\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+			\draw[-] (13) -- (5);
+			\draw[-] (11) -- (6);
+			\draw[-] (12) -- (7); 
+		\end{tikzpicture}\end{center}
+		Next we begin pairing vertices from the top group to vertices from the right group. We know that vertex 10 cannot connect to 13, and therefore must connect to either 11 or 12. As both are equivalent, we select 11. Vertex 9 cannot connect to 12 and thus must go to 13 leaving 8 with 12. 
+
+		\begin{center}\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+			\draw[-] (13) -- (5);
+			\draw[-] (11) -- (6);
+			\draw[-] (12) -- (7); 
+			\draw[-] (10) -- (11);
+			\draw[-] (9) -- (13);
+			\draw[-] (12) -- (8);
+		\end{tikzpicture}\end{center}
+		The final part of this proof is to show that in adding the remaining connections from the right to the upper group we form either a 3 or 4-cycle. However, vertex 9 cannot connect to either 5, 6 or 7 without doing so and thus this graph must contain a 3 or 4-cycle, so that at least 3 vertices cannot reach every other vertex in two or less steps.
+		\begin{center}\begin{tabular}{c c c}
+
+		\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+			\draw[-] (13) -- (5);
+			\draw[-] (11) -- (6);
+			\draw[-] (12) -- (7); 
+			\draw[-] (10) -- (11);
+			\draw[-] (9) -- (13);
+			\draw[-] (12) -- (8);
+			\draw[-, red] (9) -- (15) -- (6) -- (9);
+		\end{tikzpicture} & 
+		\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+			\draw[-] (13) -- (5);
+			\draw[-] (11) -- (6);
+			\draw[-] (12) -- (7); 
+			\draw[-] (10) -- (11);
+			\draw[-] (9) -- (13);
+			\draw[-] (12) -- (8);
+			\draw[-, red] (9) -- (13) -- (5) -- (9);
+		\end{tikzpicture} &
+
+		\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
+			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
+			{
+				\node(\iLabel) at (\x,\y){\iLabel};
+			}
+			\foreach \startLabel[count=\iStart] in {14, 15, 16}{ 
+			\foreach \loopIdx   [count=\iFinal, evaluate=\iFinal as \finalLabel using int(17 - 3*\iFinal - \iStart)] in {1, 2, 3}
+			{
+				\draw[-] (\startLabel) -- (\finalLabel);
+				
+			}}
+			\draw[-] (13) -- (5);
+			\draw[-] (11) -- (6);
+			\draw[-] (12) -- (7); 
+			\draw[-] (10) -- (11);
+			\draw[-] (9) -- (13);
+			\draw[-] (12) -- (8);
+			\draw[-, red] (9) -- (13) -- (14) -- (7) -- (9);
+		\end{tikzpicture}
+		\end{tabular}\end{center}
+
 	}
 	
 \vspace{2em}
