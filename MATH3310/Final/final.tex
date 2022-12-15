@@ -295,7 +295,7 @@ which is none other than the Petersen graph.
 				
 			}}
 		\end{tikzpicture}\end{center}
-		Again, without loss of generality, we begin  filling in connections on the left group starting with vertex 13.  This vertex cannot link to vertex 7 as this would cause a 3-cycle.  Therefore it must select either edges 6 or 5 from the right group.  Both are equivalent, so we select vertex 5.  Next, vertex 11 must select vertex 6 otherwise vertex 12 would become part of a thre cycle. This yields
+		Again, without loss of generality, we begin  filling in connections on the left group starting with vertex 13.  This vertex cannot link to vertex 7 as this would cause a 3-cycle.  Therefore it must select either edges 6 or 5 from the right group.  Both are equivalent, so we select vertex 5.  Next, vertex 11 must select vertex 6 otherwise vertex 12 would become part of a three cycle. This yields
 
 		\begin{center}\begin{tikzpicture}[every node/.style={fill=green!20, circle, draw, minimum size=0.3in}]
 			\foreach \x/\y[count = \iChild, evaluate=\iChild as \iLabel using int(\iChild + 4)] in {0/1, 0/2, 0/3, -1/4, -2/4, -3/4, -4/3, -4/2, -4/1, -3/0, -2/0, -1/0}
