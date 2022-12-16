@@ -394,12 +394,37 @@ which is none other than the Petersen graph.
 			\draw[-, red] (9) -- (13) -- (14) -- (7) -- (9);
 		\end{tikzpicture}
 		\end{tabular}\end{center}
+	\noindent {\it Claim: }A $N(2,4)$ graph with 16 vertices does not exist. \\[0.05in]
+	          {\it Proof: } Consider a graph that stems from a central vertex as before, but this time there are only sixteen vertices in the graph so that one of the parent edges only has degree three.
+		\begin{center}\begin{tikzpicture}[every node/.style={circle, draw, fill=green!20, minimum size=0.3in}]
+			\node[fill=red!20](node0) at (0,0){0};
 
+			\foreach \iNode[evaluate=\iNode as \ang using {90*(\iNode- 1)}] in {1,...,4}
+			{
+				\draw[-] (node0) -- ++(\ang:1.5) node[fill=blue!20](\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + (\iChild- 1)*45}] in {5, 6, 7}
+			{
+				\draw[-] (1) -- ++(\ang:1.5) node(\iNode){\iNode}; 
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + 90 + (\iChild - 1)*45}] in {8, 9, 10}
+			{
+				\draw[-] (2) -- ++(\ang:1.5) node(\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-45 + 2*90 + (\iChild - 1)*45}] in {11, 12, 13}
+			{
+				\draw[-] (3) -- ++(\ang:1.5) node(\iNode){\iNode};
+			}
+			\foreach \iNode[count=\iChild, evaluate=\iChild as \ang using {-60 + 3*90 + (\iChild - 1)*60 + 30}] in {14, 15}
+			{
+				\draw[-] (4) -- ++(\ang:1.5) node(\iNode){\iNode};
+			} 
+		\end{tikzpicture}\end{center} 
+		Consider the available range of vertex $4$. Vertex four can reach $0$, $1$, $2$, $3$, $14$, and $15$. If $4$ connects to another ``green'' vertex, it will only gain access to one additional vertex as it has access to all ``blue'' vertices already so that it's ``vertex count'' is 7. It also gains access to the vertices that connect to $14$ and $15$, bringing the total number of vertices within two steps to 13.  Unfortunately, this is insufficient because all vertices must reach 15 distinct vertices (excluding themselves) within two steps. Therefore, vertex $4$ would invalidate this constraint. There will always be a vertex such as vertex $4$ in a 16 vertex graph and thus $N(2,4)$ cannot be 16.  Because $N(2,4)$ cannot be greater than 17, 17, or 16 and we know that an $N(2,4)$ graph exists (from the graph $G$ given previously), then $N(2,4) = 15$.  
 	}
 	
 \vspace{2em}
 \noindent \underline{\hspace{5in}}
-\newpage
 \vspace{2em}
 \noindent{\bf \maltese \hspace{1em} Sub-Experience Three: Non-Standard Dice}\\
 \noindent(\emph{No outside resources, please.}) A 6-sided die labeled with the integers $1, 2, 3, 4, 5, 6$ will be called a \emph{standard die}.  The goal for this part of the \emph{Final} Experience is to determine all ways to label a pair of dice with positive integers so that the probabilities of rolling the usual sums $2, 3, \dots ,12$ are the same, but the labels are non-standard.  \\
@@ -452,7 +477,26 @@ Note that we are finding the generating function for two dice, implying that the
 \noindent(\emph{No outside resources, please}) We have defined space stations, and developed notation in class, in particular see \emph{Meeting Thirty-Three}.  Please use that notation in your responses to these prompts.  To remind: $S_w$ denotes a (specific) $w$-walled station, $\oint S_w$ denotes its interior, $\partial S_w$ denotes its boundary (its walls and corners).  Let's use $V(S_w)$ to denote the corners of $S_w$ and $W(S_w)$ to denote its walls.\\
 \begin{enumerate}
 	\item {\bf Watched Eyes.} The function $gg(w)$ is the maximum number of robot eyes (REs) required to protect any $w$-walled station which can be seen by at least one other RE.  Please make a conjecture for the value of $gg(w)$.  The points you earn from your response (your conjecture) will be proportional to the type and quantity of justification you give.  
-		\response{We define an upper and lower bound for $gg(w)$.  The lower bound covers the case where no additional REs are needed, that is that the solution given in $\lfloor \frac{w}{3} \rfloor$ results in each RE being seen by another.  The upper bound comes from the assumption that no RE can see another, and each requires a ``companion'' RE so that each may by seen.  Thus, the upper bound is $2\lfloor\frac{w}{3}\rfloor$ so that $\lfloor\frac{w}{3}\rfloor \le gg(w) \le 2\lfloor\frac{w}{3}\rfloor$.}
+		\response{We define an upper and lower bound for $gg(w)$.  The lower bound covers the case where no additional REs are needed, that is that the solution given in $\lfloor \frac{w}{3} \rfloor$ results in each RE being seen by another as shown below.
+		\begin{center}\begin{tikzpicture}[every node /.style={circle,draw,fill=blue!20}]
+			\node(0) at (0,0){};
+			\foreach \x/\y [count = \iChild, evaluate=\iChild as \iPrevChild using int(\iChild - 1)] in {8/0, 7/2, 6/1, 5/1, 4/2, 3/1, 2/1, 1/2}
+			{
+				\node(\iChild) at (\x,\y){};
+				\draw[-] (\iChild.center) -- (\iPrevChild.center);
+			}
+			\draw[-] (0.center) -- (8.center);
+			\node[circle, draw, fill=blue!20](circ1) at (2,1){};
+			\node[circle, draw, fill=blue!20](circ2) at (5,1){};
+			\node[circle, draw, fill=blue!20](circ3) at (8,0){};
+			\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (circ3) -- (circ1); 
+			\draw[{Stealth[scale=1.5]}-{Stealth[scale=1.5]}, dashed, red] (circ3) -- (circ2);
+		\end{tikzpicture}\end{center}
+		Note that this example can be extended to represent any arbitrary number of walls.
+		The upper bound comes from the assumption that there must exist an adjacent RE who's coverage overlaps the current RE so that placing a third RE in their joint covered space will give all three ``double'' visibility. If there are an odd number of REs, then the coverage would be rounded up so that 
+			\begin{equation*}
+				\left \lfloor \frac{w}{3} \right \rfloor  \le gg(w) \le \left \lceil \frac{1}{2} \left \lfloor \frac{w}{3} \right \rfloor \right \rceil.
+			\end{equation*}}
 	\item {\bf Rectangular Stations.}  Define the function $g_{\perp}(w)$ to be the maximum number of REs required to protect a $w$-walled station whose interior angles between walls are each either $90^{\circ}$ or $270^{\circ}$.  Please find the value for $g_{\perp}(w)$ and prove the value you find is correct.
 		\response{We first define an algorithm which places REs at quasi-optimal locations, and show that the number of REs used by this algorithm is sufficient for all cases.  We next give a pathological example which demonstrates that the number of REs used by this algorithm is necessary in that case. The algorithm works as follows:
 		\begin{enumerate}
