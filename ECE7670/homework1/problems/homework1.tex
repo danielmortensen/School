@@ -1,0 +1,645 @@
+\documentclass{article}
+\usepackage[shortlabels]{enumitem}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usepackage[normalem]{ulem} % for strike through text
+\setlength{\headheight}{0in}
+\newcommand*{\mathcolor}{}
+\def\mathcolor#1#{\mathcoloraux{#1}}
+\newcommand*{\mathcoloraux}[3]{%
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3%
+  \endgroup
+ }
+\newcommand{\mathspace}[1]{\mathcolor{white}{#1}}
+\newcommand{\zerospace}[1]{\phantom{x^{#1}}}
+\newcommand{\zerospaceleft}[1]{\phantom{+x^{#1}}}
+\newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip}\leavevmode\\[0.05in]}
+\newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
+\pagestyle{fancy}
+\rhead{\today}
+\lhead{Daniel Mortensen}
+\chead{Homework 1}
+
+\begin{document}
+% problem 1
+\noindent\underline{Problem 1.1}: Weighted codes. Let $s_1,s_2,\hdots,s_n$ be a sequence of digits, each in the range $0\le s_i < p$, where $p$ is a prime number. The weighted sum is
+\begin{equation*}
+	W = ns_1 + (n-1)s_2 + (n-2)s_3 + \hdots + 2s_{n-1} + s_n
+\end{equation*}
+The final digit $s_n$ is selected so that $W$ modulo $p$ is equal to $0$. That is, $W\equiv 0$ (mod $p$). $W$ is called the checksum.
+\begin{enumerate}[(a)]
+	\item Show that the weighted sum $W$ can be computed by computing the cumulative sum sequence $t_1, t_2, \hdots, t_n$ by
+\begin{equation*}
+	t_1=s_1, \ t_2=s_1 + s_2, \ \hdots, \ t_n=s_1+s_2+\hdots+s_n
+\end{equation*}
+then computing the cumulative sum sequence
+\begin{equation*}
+	w_1=t_1,\ w_2=t_1 + t_2, \ \hdots, \ w_n = t_1 + t_2 + \hdots + t_n
+\end{equation*}
+with $W = w_n$.  
+\item Suppose that the digits $s_k$ and $s_{k+1}$ are interchanged, with $s_k\ne s_{k+1}$, and then a new checksum $W'$ is computed. Show that if the original sequence satisfies $W\equiv 0$ (mod $p$), then the modified sequence cannot satisfy $W'\equiv 0$ (mod $p$).
+\item For a sequence of digits of length $< p$, suppose that digit $s_k$ is altered to some $s'_k\ne s_k$ and a new checksum $W'$ is computed. Show that if the original sequence satisfies $W\equiv 0$ (mod $p$), then the modified sequence cannot satisfy $W' \equiv 0$ (mod $p$). Thus, a single modified sigit can be detected. Why do we need the added restriction on the length of the sequence?
+\item See if the ISBN 0-13-139072-4 is valid.
+\item See if the ISBN 0-13-193072-4 is valid
+\end{enumerate}
+\statementsep
+The solutions to problem 1.1 are given below:
+\begin{enumerate}[(a)]
+\item {\it Claim: } $W = w_n$, where $w_n$ behaves as described in the problem statement. \\
+			{\it Proof: } From the problem statement, $w_n = \sum_{i = 1}^nt_i$ and $t_i = \sum_{j = 1}^n s_j$. Organize the values for $t_i$ in a table as follows: \\
+\begin{center}
+		\begin{tabular}{c|c c c c c}
+		$t_i$         & \\ \hline
+		$t_1$         & $s_1$ \\
+		$t_2$         & $s_1$    & $s_2$ \\
+		$t_3$         & $s_1$    & $s_2$        & $s_3$ \\
+		$\vdots$      & $\vdots$ & $\vdots$     & $\vdots$     & $\ddots$ \\
+		$t_n$         & $s_1$    & $s_2$        & $s_3$        & $\hdots$ & $s_n$\\ \hline
+		$\sum_i^nt_i$ & $ns_1$   & $(n - 1)s_2$ & $(n - 2)s_3$ & $\hdots$ & $s_n$ 
+		\end{tabular}
+\end{center}
+where row $i$ contains the values of $s_j$ for each $j$ such that the sum of all elements in row $i$ equal $t_i$. The value of $w_n$ is then the sum of all $s_j$ values in the table.  If we sum first column-wise, then $\sum_{i=1}^nt_i = \sum_{i=1}^n s_i(n - i + 1)$ which is (by definition) equal to $w_n$ and $W$. Therefore, $w_n = W$.
+\item {\it Claim: }if the digits $s_k$ and $s_{k + 1}$ are interchanged, the new checksum $W'\not\equiv 0$ (mod $p$) \\
+			{\it Proof: } We will proceed by way of contradiction. Assume that there exist values $s_k$ and $s_{k+1}$, $s_k \ne s_{k+1}$ such that $W' \equiv 0$ (mod $p$) when the two values were interchanged. This would imply that the difference between $W$ and $W'$ is also equivalent to zero modulo $p$. Because only $s_k$ and $s_{k+1}$ were affected, the difference becomes 
+\begin{equation*}\begin{aligned}
+	W - W' &= \left [ (n - k + 1)s_k + (n - k + 2)s_{k+1}\right ] - \left [ (n - k + 1)s_{k+1} + (n - k + 2)s_k\right ]	\\
+         &= s_{k+1} - s_k
+\end{aligned}\end{equation*} 
+This implies that $s_{k+1} - s_k \equiv 0$ (mod $p$). However, because both $s_k$ and $s_{k+1} < p$, then their difference must also be less than $p$ and so $p$ cannot be a divisor of $s_{k+1} - s_k$. Because $p$ is prime, $s_{k+1} - s_k$ cannot be a divisor of $p$ and so $s_{k+1} - s_k \not\equiv 0$ (mod $p$). Therefore, $W - W' \not\equiv 0$ (mod $p$), and $W' \not\equiv 0$ (mod $p$).
+\item {\it Claim: } For all $n < p$, if a digit $s_k$ is altered to come $s_k' \ne s_k$, then the resulting $W' \not\equiv 0$ (mod $p$). \\
+			{\it Proof: } Let $\delta = s_k' - s_k$ so that $s_k' = s_k + \delta$. Then 
+			\begin{equation*}\begin{aligned}
+				W' &= s_1n + s_2(n-1) \hdots (s_k + \delta)(n - k + 1) + \hdots s_1 \\
+				   &= W + (n - k + 1)\delta \\
+					 &\equiv 0 + (n - k + 1)\delta \text{ (mod $p$)}
+			\end{aligned}\end{equation*}
+Because $k \le n < p$, we know that the difference $(n - k + 1) < p$ as well. Additionally, $s_k$ and $s_k'$ are also less than $p$, making $\delta < p$.  Because both values are less than $p$, then $p$ cannot be a divisor of either $(n - k + 1)$ or $\delta$. Since $p$ is prime, then $(n - k + 1)$ nor $\delta$ are divisors of $p$ and therefore $W' \not\equiv 0$ (mod $p$). If the length $n$ is greater or equal to $p$, then the assumption $n - k + 1 < p$ would not be true for all values (consider the case where $p = 7, n = 10,$ and $k = 4$) and you could potentially engineer a value for $W'$ which would pass the checksum constraints with different values for $s_k$.
+\item For this ISBN, $W = 132$ which is equivalent to $0$ mod $11$, therefore this is a valid ISBN number.
+\item For this ISBN, $W = 138 \not\equiv 0$ mod $11$, making this ISBN invalid.
+\end{enumerate}
+% problem 1.2
+\problemsep
+\noindent\underline{Problem 1.2}: 
+See if the UPCs 0 59280 00020 0 and 0 41700 00037 9 are valid 
+\statementsep
+If we hash the first UPC per the instructions in Section 1.2 for example 1.2 of the text, we get a hash of 60.  Since this is divisible by 10, the value is a valid UPC code. The second UPC code yields a hash of 47.  Since the second hash is not divisible by 10, this UPC code is invalid.
+\problemsep
+% problem 1.3
+\noindent\underline{Problem 1.3:} 
+A coin having $P$(head) $= 0.001$ is tossed 10,000 times, each toss independent. What is the lower limit on the number of bits it would take to accurately describe the outcomes? Suppose it were possible to send only 100 bits of information to describe all 10,000 outcomes. What is the minimum average distortion per bit that must be accrued sending the information in this case?
+\statementsep
+The average information, in bits, of each {\it draw (or coin flip)} is defined as the entropy of the underlying distribution which we compute as
+\begin{equation*}\begin{aligned}
+	H(P) &= -\sum p_i\text{log}(p_i) \\ 
+			 &= -(0.001*\text{log}_2(0.001) + 0.999*\text{log}_2(0.999)) \\
+			 &= 0.0114
+\end{aligned}\end{equation*}
+If we multiply this by the number of draws, in this case 10,000, then the average information for the entire set of data would have a minimum bound of 114.0776 bits. If the channel we use to transmit this information has a capacity of 100 bits, then we can compute our rate as
+\begin{equation*}
+	r = \frac{100}{114.0755} = 0.8766
+\end{equation*} 
+and we compute the distortion using the {\it rate-distortion theorem} so that
+\begin{equation*}\begin{aligned}
+	p &= H_2^{-1}(1 - r) \\
+    &= H_2^{-1}(0.12339)\\
+		&= 0.0169
+\end{aligned}\end{equation*}
+Therefore, for 10,000 draws, we would expect a distortion of $0.0169*10000 = 16.9$ bits.
+\problemsep
+% problem 1.4
+\noindent\underline{Problem 1.4: } 
+Show that the entropy of a source $X$ with $M$ outcomes described by (1.1) is maximized when all the outcomes are equally probable: $p_1=p_2=\hdots=p_M$.
+\statementsep
+In this proof, we will use an idea from constrained optimization which states that for a constrained optimization problem with equality constraints, the gradient of the equality constraint and that of the objective function are scalar multiples of each other, where the scaler multiple is known as a Lagrange multiplier, $\lambda$. In this case, our objective function is the entropy and the constraint is that the probability values must all sum to one. Formulating the objective function and equality constraint so that they are scalar multiples of each other allows us to say that
+\begin{equation*}\begin{aligned}
+	       & \nabla H_2(p) = \lambda \nabla \left [\sum_ip_i - 1\right ] \\
+\implies & \frac{\text{ln}(p_i) + 1}{\text{ln}(2)} = \lambda \ \forall i \in {1,2,\hdots,M} \\
+\implies & \text{ln}(p_i) = \lambda\text{ln}(2) - 1 \\
+\implies & p_i = e^{\lambda\text{ln}(2) - 1}
+\end{aligned}\end{equation*}
+Therefore, $p_i$ is equal to the same value for all values of $i$ and the entropy is maximized when all outcomes are equally probable.
+\problemsep
+%problem 1.11
+\noindent\underline{Problem 1.11}
+Consider a series of $M$ BSCs, each with transition probability $p$, where the outputs of each BSC is connected to the inputs of the next in the series. Show that the resulting overall channel is a BSC and determine the crossover probability as a function of $M$. What happens as $m\rightarrow \infty$? 
+\statementsep
+Consider the case where only 0 enters the system. We know that 0 will exit the other side when an even number of ``flip'' events occure. The transition probability will then be the sum of probability values for paths with even numbers of ``flip'' events. If the number of BSCs is $m$, then the number of possible paths with $n$ flip events is 
+\begin{equation*}
+	{m\choose n}
+\end{equation*}
+and the probability of taking a path with $n$ flip events is
+\begin{equation*}
+	p^n(1 - p)^{m - n}.
+\end{equation*}
+Therefore, the probability of taking a path with an even number of ``flip'' events is
+\begin{equation*}
+	p_{\text{even}} = \sum_{i = \text{even}}^{m}{m \choose i} p^{i}(1 - p)^{m - i}
+\end{equation*}
+and consequently that the probability of the takinga path with an odd number of ``flip'' events is
+\begin{equation*}
+	p_{\text{odd}} = \sum_{i = \text{odd}}^{m}{m \choose i}p^{i}(1 - p)^{m - i}
+\end{equation*}
+We can also observe that
+\begin{equation*}\begin{aligned}
+	         & p_{\text{even}} = \frac{1}{2}2p_{\text{even}} \\
+\implies   & p_{\text{even}} = \frac{1}{2}(p_{\text{even}} + p_{\text{odd}} - p_{\text{odd}} + p_{\text{even}}) \\
+\implies   & p_{\text{even}} = \frac{1}{2} \left ( 2\left [ \sum_{i = \text{even}}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ] + \left [ \sum_{i = \text{odd}}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ]  - \left [ \sum_{i = \text{odd}}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ] \right )  \\
+\end{aligned}\end{equation*}
+Next, we observe that when $i$ is odd, $-p^i = (-p)^i$ so that
+\begin{equation*} \begin{aligned}
+           & p_{\text{even}} = \frac{1}{2} \left ( \left [ \sum_{i = \text{even} + \text{odd}}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ] + \left [ \sum_{i = \text{even}}^{m}{m \choose i} (-p)^{i}(1 - p)^{m - i} \right ]  + \left [ \sum_{i = \text{odd}}^{m}{m \choose i} (-p)^{i}(1 - p)^{m - i} \right ] \right )  \\
+\implies   & p_{\text{even}} = \frac{1}{2} \left ( \left [ \sum_{i = \text{even} + \text{odd}}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ] + \left [ \sum_{i = \text{even} + \text{odd}}^{m}{m \choose i} (-p)^{i}(1 - p)^{m - i} \right ] \right )\\
+\implies   & p_{\text{even}} = \frac{1}{2} \left ( \left [ \sum_{i = 0}^{m}{m \choose i} p^{i}(1 - p)^{m - i} \right ] + \left [ \sum_{i = 0}^{m}{m \choose i} (-p)^{i}(1 - p)^{m - i} \right ] \right )\\
+\end{aligned}\end{equation*}
+Theh binomial theorom, which states that $(x + y)^n = \sum_{i = 0}^n{n\choose i}x^iy^{n - i}$ can also be referenced to show that
+\begin{equation*}\begin{aligned}
+           & p_{\text{even}} = \frac{1}{2} \left ( \left [ p + (1 - p)]^m \right ] + \left [ -p + (1 - p) \right ]^m \right ) \\
+\implies   & p_{\text{even}} = \frac{1}{2} \left ( \left [1]^m \right ] + \left [ 1 - 2p \right ]^m \right ) \\
+\implies   & p_{\text{even}} = \frac{1}{2} \left ( 1 + \left [ 1 - 2p \right ]^m \right ) \\ 
+\implies   & p_{\text{even}} =  \frac{1 + \left ( 1 - 2p \right )^m}{2} \\ 
+\end{aligned}\end{equation*}
+Both $p_{\text{even}} + p_{\text{odd}}$ must sum to one, therefore we can express $p_{\text{odd}}$ as
+\begin{equation*}\begin{aligned}
+	       & p_{\text{odd}} = 1 - p_{\text{even}} \\
+\implies & p_{\text{odd}} = 1 - \frac{1 + \left ( 1 - 2p \right )^m}{2} \\ 
+\implies & p_{\text{odd}} = \frac{2 - 1 - \left ( 1 - 2p \right )^m}{2} \\ 
+\implies & p_{\text{odd}} = \frac{1 - \left ( 1 - 2p \right )^m}{2} \\ 
+\end{aligned}\end{equation*}
+This is true for both the 0 and 1 ends of the channel as the probabilities are symmetric. Therefore, a sequence of $m$ BSC's can be represented as
+\begin{center}\begin{tikzpicture}
+	\node[circle,fill=black, inner sep=0pt, minimum size=5pt](topLeft) at (0,0){};
+	\node[circle,fill=black, inner sep=0pt, minimum size=5pt](botLeft) at (0,-2){};
+	\node[circle,fill=black, inner sep=0pt, minimum size=5pt](topRite) at (6,0){};
+	\node[circle,fill=black, inner sep=0pt, minimum size=5pt](botRite) at (6,-2){};
+	\draw[->] (topLeft.east)       -- node[right=2cm, sloped, above]{$p_{\text{even}}$} (topRite.west);
+	\draw[->] (topLeft.south east) -- node[right=2cm, sloped, above]{$p_{\text{odd}}$} (botRite.north west);
+	\draw[->] (botLeft.east)       -- node[right=2cm, sloped, below]{$p_{\text{even}}$} (botRite.west);
+	\draw[->] (botLeft.north east) -- node[right=2cm, sloped, below]{$p_{\text{odd}}$} (topRite.south west);
+\end{tikzpicture}\end{center}
+Note how the structure of the new source channel matches that of a binary source channel. 
+\problemsep
+%problem 1.13
+\noindent\underline{Problem 1.13}
+Let $V_2(n,t)$ be the number of points in a Hamming sphere of "radius" $t$ around a binary codwrord of length $n$. That is, it is the number of points within a Hamming distance $t$ of a binary vector. Determine a formula for $V_2(n,t)$.
+\statementsep
+The hamming distance of one codeward from another is the number of bits which differ between the two. If we have a codeword, then the number of points that are a hamming ``distance'' $i$ from our codeward  would be 
+\begin{equation*}
+	{n \choose i}
+\end{equation*}
+Therefore, the number of points {\it within} radius $t$ would be the sum of all points that are hamming distance $t$ or less from the center codeward so that
+\begin{equation*}
+	V_2(n,t) = \sum_{i = 0}^t{n\choose i}.
+\end{equation*}
+\problemsep
+%problem1.14
+\noindent\underline{Problem 1.14}
+Show that the Hamming distance satisfies the triangle inequality. That is, for three binary vectors $\mathbf{x}$,$\mathbf{y}$, and $\mathbf{z}$ of length $n$, show that
+\begin{equation*}
+	d_H(\mathbf{x},\mathbf{z})\le d_H(\mathbf{x},\mathbf{y}) + d_H(\mathbf{y},\mathbf{z}).
+\end{equation*}
+\statementsep
+Because the hamming distance of two $n$ dimensional vectors is the sum of $d_H(x_i,z_i)$ over all indices, we will show that the triangle inequality holds for the hamming distance by showing that it holds for each element in $\mathbf{x},\mathbf{y},$ and $\mathbf{z}$, that is that
+\begin{equation*}
+	d_H(x_i,z_i) \le d_H(x_i,y_i) + d_H(y_i,z_i).
+\end{equation*} 
+We will prove that the Hamming distance holds for each element in $\mathbf{x}, \mathbf{y}, $ and $\mathbf{z}$ by showing that the Hamming distance holds for all cases. First, we do not need to prove anything for the case where 
+$d_H(x_i,z_i) = 0$, or that $x_i$ and $z_i$ are the same value because the hamming distance is non-negative and so it will be impossible for $d_H(x_i,y_i) + d_H(y_i,z_i)$ to be less than zero. 
+\par Next, we also do not need to show anything for the case where $d_H(x_i, y_i) = 0, d_H(y_i, z_i) = 0$ because $x_i$ cannot equal $y_i$ if $y_i = z_i$ as $x_i \ne z_i$ (note, this only holds because $\mathbf{x}$, $\mathbf{y}$, and $\mathbf{z}$ are binary vectors. For other constallations, we would need to prove this point). Next, we may also ignore the case for $d_H(x_i, y_i) = 1, d_H(y_i, z_i) = 1$ because this implies that $x_i, y_i, $ and $z_i$ are all different, which cannot happend when there are only two elements in our constallation. Therefore the two remaining cases that remain are $d_H(x_i,z_i) = 1, d_H(x_i, y_i) = 1, d_H(y_i, z_i) = 0$ and $d_H(x_i, z_i) = 1, d_H(x_i, y_i) = 0, d_H(y_i, z_i) = 1$.
+\par In the case where $d_H(x_i,z_i) = 1, d_H(x_i, y_i) = 1, d_H(y_i, z_i) = 0$, we observe that $1 \le 1 + 0$ which is true. For the second case where $d_H(x_i, z_i) = 1, d_H(x_i, y_i) = 0, d_H(y_i, z_i) = 1$ we observe that $1 \le 0 + 1$ is also a true statement. Therefore, the triangle inequality holds for the given values.
+\problemsep
+%problem 1.16
+\noindent\underline{Problem 1.16}
+In this problem, we will demonstrate that the probability of error for a repetition code decreases exponentially with the code length. Several other useful facts will also be introduced by this problem.
+\begin{enumerate}[(a)]
+	\item Show that 
+\begin{equation*}
+	2^{-nH_2(p)} = (1 - p)^n\left ( \frac{p}{1 - p}\right )^{np}
+\end{equation*}
+	\item For the fact 
+\begin{equation*}
+	0 \le p \le \frac{1}{2} \implies \sum_{0 \le i \le pn} {n \choose i} \le 2^{nH_2(p)},
+\end{equation*}
+justify the following steps of its proof:
+\begin{equation*}\begin{aligned}
+	1 = (p + (1 - p))^n & \ge \sum_{0 \le i \le pn} {n \choose i}p^i(1 - p)^{n - i} \\ 
+  & \ge \sum_{0 \le i \le pn}{n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{pn} \\
+  & = 2^{-nH_2(p)} \sum_{0 \le i \le pn}{n \choose i}
+\end{aligned}\end{equation*}
+\item Show that the probability of error for a repetition code can be written as
+\begin{equation*}
+	P_e^n = \sum_{j=0}^{n-(t+1)} {n \choose j}(1 - p)^jp^{(n-j)}
+\end{equation*}
+where $t = \lfloor (n - 1)/2 \rfloor$.
+
+\item Show that 
+\begin{equation*}
+	P_e^n \le \left [ 2\sqrt{p(1-p)}\right ]^n
+\end{equation*}
+\end{enumerate}
+\statementsep
+The proofs for this problem are given as:
+\begin{enumerate}[(a)]
+	\item {\it Claim: } $2^{-nH_2(p)} = (1 - p)^n\left( \frac{p}{1 - p}\right )^{np}$ \\[0.2in]
+				{\it Proof: } First we apply the definition of entropy, assuming that our units are in bits so that log is base-2 so that
+\begin{equation*}\begin{aligned}
+	2^{-nH_2(p)} = 2^{-n(p\text{log}_2(p) + (1 - p)\text{log}_2(1 - p)}
+\end{aligned}\end{equation*}
+Next, we distribute like terms and rearrange the terms in the exponent to show that
+\begin{equation*}\begin{aligned}
+	2^{-n(p\text{log}_2(p) + (1 - p)\text{log}_2(1 - p)} &= 2^{np(\text{log}_2(p) - \text{log}_2(1 - p)) + n\text{log}_2(1 - p)} \\
+																											 &= 2^{np(\text{log}_2(\frac{p}{1 - p})) + n\text{log}_2(1 - p)} \\
+                                                       &= 2^{\text{log}_2(\frac{p}{1 - p})^{np} + \text{log}_2(1 - p)^n} \\
+																											 &= (1 - p)^n\left ( \frac{p}{1 - p}\right )^{np}
+\end{aligned}\end{equation*}
+	\item For this section we will proove several claims. \\[0.2in]
+				{\it Claim: } $1 = (p + (1 - p))^n$ \\[0.2in]
+				{\it Proof: } This proof uses properties of a field to justify the given relationship including the fact that $1$ is the multiplicative identity, for every value there exists an additive inverse, and the fact that values are commutative. Doing so allows us to state that
+\begin{equation*}\begin{aligned}
+												1 &= 1^n \\
+													&= (1 + p - p)^n \\
+													&= (p + (1 - p))^n.
+\end{aligned}\end{equation*}
+				{\it Claim: } $(p + (1 - p))^n \ge \sum_{0 \le i \le pn}{n \choose i} p^i(1 - p)^{n - i}$ \\[0.2in]
+				{\it Proof: } Recall from the binomial theorem that 
+					\begin{equation*}
+						\sum_{i = 0}^n{n \choose i}x^iy^{n - i} = (x + y)^n.
+					\end{equation*}
+				Substituting the definition for the Binomial Theorem into the left side of the claim yields
+					\begin{equation*}\begin{aligned}
+						       & \sum_{i=0}^n{n \choose i}p^i(1 -p)^{n - i} \ge \sum_{i = 0}^{pn}p^i(1 - p)^{n - i} \\
+					\implies & \sum_{i = np + 1}^n p^i(1 - p)^{n - i} + \sum_{i=0}^{np}{n \choose i}p^i(1 -p)^{n - i} \ge \sum_{i = 0}^{np}p^i(1 - p)^{n - i} \\
+					\implies & \sum_{i = np + 1}^n p^i(1 - p)^{n - i} \ge \sum_{i = 0}^{np}p^i(1 - p)^{n - i}  - \sum_{i=0}^{np}{n \choose i}p^i(1 -p)^{n - i}\\
+					\implies & \sum_{i = np + 1}^n p^i(1 - p)^{n - i} \ge 0\\
+					\end{aligned}\end{equation*}
+				which is true because $0 \le p \le 0.5$. \\[0.2in]
+				{\it Claim: } $\sum_{i = 0}^{np} {n \choose i}(1 - p)^{n - i}p^i \ge \sum_{i = 0}^{np} {n\choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np}$ \\[0.2in]
+				{\it Proof: } Begin by arranging terms so that the two expressions can be more easily compared by acknowledging that 
+					\begin{equation*}\begin{aligned}
+						        & \sum_{i = 0}^{np} {n \choose i}(1 - p)^{n - i}p^i \ge \sum_{i = 0}^{np} {n\choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} \\
+					\implies  & \sum_{i = 0}^{np} {n \choose i}(1 - p)^n \left ( \frac{p}{1 - p} \right )^i \ge \sum_{i = 0}^{np} {n\choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} \\
+					\implies  & \sum_{i = 0}^{np} {n \choose i}(1 - p)^n \left [ \left ( \frac{p}{1 - p} \right )^i  - \left (\frac{p}{1 - p}\right )^{np} \right ] \ge 0 \\
+					\implies  & \sum_{i = 0}^{np} {n \choose i}(1 - p)^n \left [ \frac{p^i}{(1 - p)^i}  - \frac{p^{np}}{(1 - p)^{np}} \right ] \ge 0 \\
+					\implies  & \sum_{i = 0}^{np} {n \choose i}(1 - p)^n \left [ \frac{p^i(1 - p)^{np} - p^{np}(1 - p)^i}{(1 - p)^{npi}}\right ] \ge 0 \\
+					\implies  & \sum_{i = 0}^{np} {n \choose i}(1 - p)^n \left [ \frac{(1 - p)^{np - i} - p^{np - i}}{(1 - p)^{np}p^{-i}}\right ] \ge 0 \\
+					\end{aligned}\end{equation*}
+					Next, we note that the only place in this expression which can be greater than zero is the numerator of the fracional value. Therefore, by showing that
+					\begin{equation*}
+						(1 - p)^{np - i} - p^{np - i} \ge 0
+					\end{equation*}
+					we will effectively validate the claim because there will be no negative values in the expression left of zero so that their sum must necessarily be non-negative. Begin by recognizing that
+					\begin{equation*}\begin{aligned}
+						(1 - p)^{np - i} - p^{np - i} \ge 0 & \implies (1 - p)^{np - i} \ge p^{np - i} \\
+\                                               &  \implies 1 - p \ge p
+					\end{aligned}\end{equation*}
+					which we know because $0 \le p \le 1/2$. \\[0.2in]
+					{\it Claim: } $\sum_{i = 0}^{np} {n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} = 2^{-H_2(p)}\sum_{i = 0}^{np}{n \choose i}$ \\[0.2in]
+					{\it Proof: } Recall that
+						\begin{equation*}\begin{aligned}
+					    \sum_{i = 0}^{np} {n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} = 2^{-H_2(p)}\sum_{i = 0}^{np}{n \choose i} & \implies \sum_{i = 0}^{np} {n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} = 2^{-H_2(p)}\sum_{i = 0}^{np}{n \choose i} \\
+                                                                                                                                       & \implies \sum_{i = 0}^{np} {n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} = (1 - p)^n\left ( \frac{p}{1 - p} \right )^{np}\sum_{i = 0}^{np}{ n \choose i} \\
+																																																																			 & \implies \sum_{i = 0}^{np} {n \choose i}(1 - p)^n\left ( \frac{p}{1 - p}\right )^{np} = \sum_{i = 0}^{np}{ n \choose i} (1 - p)^n\left ( \frac{p}{1 - p} \right )^{np}\\
+						\end{aligned}\end{equation*}
+				where the second step comes from the first claim we proved as part of this problem.
+	\item {\it Claim: } $P_e^n = \sum_{j = 0}^{n - (t + 1)}{n \choose j} (1 - P)^jp^{n - j}$ \\[0.2in]
+				{\it Proof: } When using a repetition code, each bit is sent through the channel, and then whichever bit is in the majority is selected. Therefore, the probability of an error for a repetition code is the probability that half or more of the transmitted bits are incorrect. Because each transmitted bit is independent, the probability of any $n - j$ bits being incorrect is the probability of $j$ {\it correct} bits times the probability of $n - j$ {\it incorrect} bits so that
+				\begin{equation*}
+					p(j) = (1 - p)^jp^{n - j}.
+				\end{equation*}
+				however, this does not account for various permutations. The number of total permutations with $j$ correct bits is ${n \choose j}$, making the probability of $j$ correct bits
+				\begin{equation*}
+					p(j) = {n \choose j}(1 - p)^jp^{n - j}.
+				\end{equation*}
+				Next, we sum over the probability of all $j \le n/2$, making the probability of error
+				\begin{equation*}\begin{aligned}
+					P_e^n & = \sum_{i = 0}^{n - (\lfloor \frac{n - 1}{2} \rfloor + 1)} {n \choose j}(1 - p)^jp^{n - j} \\
+								& = \sum_{i = 0}^{n - (t + 1)} {n \choose j}(1 - p)^jp^{n - j}, \ \ t =\left\lfloor \frac{n - 1}{2} \right\rfloor \\
+				\end{aligned}\end{equation*}
+	\item {\it Claim: } $P_e^n \le \left [ 2\sqrt{p(1 - p)}\right ]^n$ \\[0.2in]
+				{\it Proof: } Recall from the previous proof that 
+					\begin{equation*}
+						P_e^n = \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j}
+					\end{equation*}
+					where $t = \lfloor (n - 1)/2 \rfloor$. Using this definition for $P_e^n$, we can rephrase the claim as
+					\begin{equation*}
+						    \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le 2^np^{n/2}(1 - p)^{n/2} \\
+					\end{equation*}
+					and use the binomial theorem to say that
+					\begin{equation*}
+								 \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le 2^np^{n/2}(1 - p)^{n/2} \implies \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le \sum_{i = 0}^n{n \choose i}p^{n/2}(1 - p)^{n/2} \\
+					\end{equation*}
+					Note how $n - (t + 1) < n/2$ which implies that $j < n/2 $ and $n - j > n/2 \ \forall j$. For the remainder of this proof, we will show that $(1 - p)^jp^{n - j} \le p^{n/2}(1 - p)^{n/2}$. By doing so, we demonstrate that 
+				\begin{equation*}\begin{aligned}
+									& \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le \sum_{i = 0}^{n - (t + 1)}{n \choose i}p^{n/2}(1 - p)^{n/2} \\
+         \implies &  \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le \sum_{i = 0}^{n}{n \choose i}p^{n/2}(1 - p)^{n/2} \\
+				 \implies &  \sum_{j = 0}^{n - (t + 1)}{n \choose j}(1 - p)^jp^{n - j} \le \left [ 2 \sqrt{p(1 - p)} \right ]^n \\
+				 \implies &  P_e^n \le \left [ 2 \sqrt{p(1 - p)} \right ]^n.
+				\end{aligned}\end{equation*}
+				To show that $(1 - p)^jp^{n - j} \le p^{n/2}(1 - p)^{n/2}$, we start by noting that
+				\begin{equation*}\begin{aligned}
+					(1 - p)^jp^{n - j} \le p^{n/2}(1 - p)^{n/2} & \implies 0 \le p^{n/2}(1 - p)^{n/2} - (1 - p)^jp^{n-j} \\
+																										  & \implies 0 \le (1 - p)^j\left [ (1 - p)^{n/2 - j} p^{n/2} - p^{n - j}\right ] \\
+																										  & \implies 0 \le (1 - p)^j\left [ (1 - p)^{n/2 - j} - p^{n - j - n/2} \right ]p^{n/2} \\
+																										  & \implies 0 \le (1 - p)^j\left [ (1 - p)^{n/2 - j} - p^{n/2 - j} \right ]p^{n/2}. 
+				\end{aligned}\end{equation*}
+Note that 
+				\begin{equation*}
+						0 \le (1 - p)^j\left [ (1 - p)^{n/2 - j} - p^{n/2 - j} \right ]p^{n/2} \Longleftrightarrow (1 - p)^{n/2-j} - p^{n/2-j} \ge 0
+				\end{equation*}
+				because $(1 - p)^j$ and $p^{n/2}$ are necessarily greater than zero. This implies that
+				\begin{equation*}
+					(1 - p)^{n/2 - j} \ge p^{n/2 - j} \implies 1 - p \ge p.
+				\end{equation*}
+				Which is true be definition. If the probability of an incorrect transition were greater that the probability of a correct transmission, then you would reverse the two to increase performance. Therefore, 
+				\begin{equation*}
+					P_e^n \le \left [ 2\sqrt{p(1 - p)}\right ]^n
+				\end{equation*}
+\end{enumerate}
+\problemsep
+% problem 1.18
+\noindent\underline{Problem 1.18}
+Show that for soft-decision decoding on the $(n,1)$ repetition code, (1.33) is correct.
+\statementsep
+{\it Claim: } The probability of error for a soft decoding repetition code with $n$ repeats is $Q\left ( \sqrt{\frac{2E_b}{N_0}}\right )$. \\[0.05in]
+{\it Proof: } Recall that when a zero is send, each observation $r_i$ is normally distributed with mean $\sqrt{E_c}$ and variance $\sigma^2$. From section 1.8.2 of the book, we also know that our optimal decision rule is to choose $\hat{s} = \sqrt{E_c}$ if $\sum_i^n r_i > 0$. We also know that the sum of independent gaussian random variables is distributed as gaussian with a mean and variance that are the respective sum of the individual mean and variances. Therefore, we can also say that
+\begin{equation*}\begin{aligned}
+	       & \sum_i^nr_i \sim \mathcal{N}(n\sqrt{N_c},n\sigma^2)\\
+\implies & \sum_i^nr_i \sim \mathcal{N}\left (n\sqrt{\frac{N_b}{n}},n\sigma^2 \right ) \qquad \text{Recall that $E_c = \frac{E_b}{n}$}\\
+\implies & \sum_i^nr_i \sim \mathcal{N}\left (n\sqrt{\frac{N_b}{n}},\frac{nN_0}{2} \right ) \qquad \text{Because $\sigma^2 = \frac{N_0}{2}$}\\
+\end{aligned}\end{equation*}
+with this in mind, note that the probability of error is the probability that the sum of observations is less than zero, or 
+\begin{equation*}\begin{aligned} 
+         & P_{\text{error}} = P\left (\sum_i^nr_i < 0\right ) \\
+\implies & P_{\text{error}} = \Phi \left ( \frac{0 - \sqrt{nE_b}}{\sqrt{\frac{nN_0}{2}}} \right ) 	\\
+\implies & P_{\text{error}} = \Phi \left ( -\sqrt{\frac{- nE_b}{\frac{nN_0}{2}}} \right ) 	\\
+\implies & P_{\text{error}} = \Phi \left ( -\sqrt{\frac{2E_b}{N_0}} \right ) 	\\
+\end{aligned}\end{equation*}
+where $\Phi(x)$ is the standard normal cdf function. Next, we observe that $\Phi(-x) = Q(x)$ because the gaussian distribution is symmetric about the mean. Therefore, 
+\begin{equation*}
+P_{\text{error}} = \Phi \left ( -\sqrt{\frac{2E_b}{N_0}} \right ) \implies P_{\text{error}} = Q\left ( \sqrt{\frac{2E_b}{N_0}}\right )	
+\end{equation*}
+\vspace{2in}
+\problemsep
+% problem 1.19
+\noindent\underline{Problem 1.19}
+For the $(n,1)$ code used over a BSC with crossover probability $p$, what is the probability that an error event occurs which is not detected?
+\statementsep
+Error events would not be detected when all $n$ bits were modified in transmission, which happens with probability $p$ (per bit). Assuming that each bit is transmitted independently of the others, the probability that an error event is not detected would be $p^n$.
+\problemsep
+%problem 1.21
+\noindent\underline{Problem 1.21}
+For the $(7,4)$ Hamming code generator polynomial $g(x) = 1 + x + x^3$, generate all possible code polynomials $c(x)$. Verify that they correspond to the codewords in (1.35). Take a nonzero codeword $c(x)$ and compute $c(x)h(x)$ modulo $x^7 + 1$. Do this also for two other nonzero codewords. What is the check condition for this code?
+\statementsep
+Recall that a polynomial $c(x)$ is a code word if $c(x)h(x) \equiv 0$ (mod $(x^7 + 1)$). We also know that $h(x) = \frac{x^7 + 1}{g(x)}$ (mod 2), which implies that $h(x)c(x) \equiv 0$ (mod $(x^7 + 1)$) if $g(x)$ divides $c(x)$ and $c(x)$ is an element of the set of all polynomials of degree 6 (or less). Because $g(x)$ must divide $c(x)$, we already know that the values in $c(x)$ are multiples of $g(x)$. Our search must then include all elements in the set of polynomials of degree less than or equal to 4. Each of these elements is then multiplied by $g(x)$ to form a code word $c(x)$. 
+\begin{equation*} \begin{aligned}
+& \begin{bmatrix*}[l] 
+                0 \\  
+              x^2 \\
+                x \\
+          x^2 + x \\
+                1 \\
+          x^2 + 1 \\
+            x + 1 \\
+      x^2 + x + 1 \\
+              x^3 \\
+        x^3 + x^2 \\
+          x^3 + x \\
+    x^3 + x^2 + x \\
+          x^3 + 1 \\
+    x^3 + x^2 + 1 \\
+      x^3 + x + 1 \\
+x^3 + x^2 + x + 1 \\
+\end{bmatrix*}g(x) \\
+= & \begin{bmatrix*}[l]
+                                          0 \\ 
+                            x^5 + x^3 + x^2 \\
+                              x^4 + x^2 + x \\
+                x^5 + x^4 + x^3 + x \\
+                                x^3 + x + 1 \\
+                  x^5 + x^2 + x + 1 \\
+                  x^4 + x^3 + x^2 + 1 \\
+        x^5 + x^4 + 1 \\
+                            x^6 + x^4 + x^3 \\
+              x^6 + x^5 + x^4 + x^2 \\
+                x^6 + x^3 + x^2 + x \\
+      x^6 + x^5 + x \\
+                  x^6 + x^4 + x + 1 \\
+      x^6 + x^5 + x^4 + x^3 + x^2 + x + 1 \\
+        x^6 + x^2 + 1 \\
+x^6 + x^5 + x^3 + 1 \\
+\end{bmatrix*} 
+\end{aligned}\end{equation*}
+If we take the coefficients that correspond to the powers in the polynomials given above, we get \\
+\begin{center}
+\begin{tabular}{c | c c c c c c c}
+            & $1$ & $x$ & $x^2$ & $x^3$ & $x^4$ & $x^5$ & $x^6$  \\ \hline 
+$c_1(x)$    & 0   & 0   & 0     & 0     & 0     & 0     & 0      \\
+$c_2(x)$    & 0   & 0   & 1     & 1     & 0     & 1     & 0      \\
+$c_3(x)$    & 0   & 1   & 1     & 0     & 1     & 0     & 0      \\
+$c_4(x)$    & 0   & 1   & 0     & 1     & 1     & 1     & 0      \\
+$c_5(x)$    & 1   & 1   & 0     & 1     & 0     & 0     & 0      \\
+$c_6(x)$    & 1   & 1   & 1     & 0     & 0     & 1     & 0      \\
+$c_7(x)$    & 1   & 0   & 1     & 1     & 1     & 0     & 0      \\
+$c_8(x)$    & 1   & 0   & 0     & 0     & 1     & 1     & 0      \\
+$c_9(x)$    & 0   & 0   & 0     & 1     & 1     & 0     & 1      \\
+$c_{10}(x)$ & 0   & 0   & 1     & 0     & 1     & 1     & 1      \\
+$c_{11}(x)$ & 0   & 1   & 1     & 1     & 0     & 0     & 1      \\
+$c_{12}(x)$ & 0   & 1   & 0     & 0     & 0     & 1     & 1      \\
+$c_{13}(x)$ & 1   & 1   & 0     & 0     & 1     & 0     & 1      \\
+$c_{14}(x)$ & 1   & 1   & 1     & 1     & 1     & 1     & 1      \\
+$c_{15}(x)$ & 1   & 0   & 1     & 0     & 0     & 0     & 1      \\
+$c_{16}(x)$ & 1   & 0   & 0     & 1     & 0     & 1     & 1      \\ 
+\end{tabular}
+\end{center}
+which match the code words in 1.35. As a check, we can multiple the values that correspond to $c_4(x), c_{11}(x), $ and $c_{16}(x)$ by $h(x) = x^4 + x^2 + x + 1$ which yield $c_4(x)h(x) = x^10 + x^9 + x^8 + x^7 + x^3 + x^2 + x + 1, c_{11}(x)g(x) = x^10 + x^8 + x^3 + x,$ and $c_{16}(x)h(x) = x^9 + x^8 + x^2 + x$ respectively all of which divide by $1 + x^7$ without remainder.
+\problemsep
+%problem 1.22
+\noindent\underline{Problem 1.22}
+Is it possible that the polynomial $g(x) = x^4 + x^3 + x^2 + 1$ is a generator polyomial for a cyclic code of length $n = 7$?
+\statementsep
+We will verify that the polynomial $g(x) = x^4 + x^3 + x^2 + 1$ can in fact be a generator polynomical for a cyclic code of length $n = 7$ by showing that it divides $x^7 + 1$ and therefore has a parity-check polynomial.
+\begin{equation*}
+\begin{array}{r}
+x^3 - x^2 - 1\phantom{)}   \\
+x^4 + x^3 + x^2 + 1{\overline{\smash{\big)}\,            x^7 \mathspace{+ x^6} \mathspace{+ x^5} \mathspace{+ x^4} \mathspace{+ x^3} \mathspace{+ x^2} \mathspace{+ x}            + 1  \phantom{)} }}\\
+\underline{-~\phantom{(}                                 x^7            + x^6             + x^5  \mathspace{+ x^4}            + x^3  \mathspace{+ x^2} \mathspace{+ x} \mathspace{+ 1} \phantom{)} } \\
+           \phantom{-~(}                      \mathspace{x^7}           - x^6             - x^5  \mathspace{+ x^4}            - x^3  \mathspace{+ x^2} \mathspace{+ x}            + 1  \phantom{)}   \\ 
+\underline{-~\phantom{(}                      \mathspace{x^7}           - x^6             - x^5             - x^4  \mathspace{+ x^3}            - x^2  \mathspace{+ x} \mathspace{+ 1} \phantom{)} } \\ 
+					 \phantom{-~(}                      \mathspace{x^7}\mathspace{+ x^6} \mathspace{+ x^5}            + x^4             - x^3             + x^2  \mathspace{+ x}            + 1  \phantom{)}   \\
+\underline{-~\phantom{(}                      \mathspace{x^7}\mathspace{+ x^6} \mathspace{+ x^5}            - x^4             - x^3             - x^2  \mathspace{+ x}            - 1  \phantom{)} } \\
+           \phantom{-~(}                      \mathspace{x^7}\mathspace{+ x^6} \mathspace{+ x^5}             2x^4  \mathspace{+ x^3}            + 2x^2 \mathspace{+ x}            + 2  \phantom{)}   \\ 
+\phantom{)} 
+\end{array}	
+\end{equation*}
+Note how the remainder from long devision yields an expression that is equivalent to zero modulo 2, which implies that the polynomial $x^3 + x^3 + x^2 + 1$ divides $x^7 + 1$ and thus that $g(x)$ may serve as a generator polynomial for a cyclic code of length $n = 7$.
+\problemsep
+%problem 1.23
+\noindent\underline{Problem 1.23}
+For the parity check matrix
+\begin{equation*}
+	H = \begin{bmatrix}
+				1 & 0 & 1 & 0 & 0 \\
+			  0 & 1 & 0 & 1 & 0 \\
+				0 & 1 & 1 & 0 & 1
+			\end{bmatrix}
+\end{equation*}
+draw the wolf trellis and the Tanner graph.
+\statementsep
+We draw the wolf trellis graph for all paths which end in all zeros as
+\begin{center}
+\begin{tikzpicture}
+ \node at (0.5, 0){\scalebox{0.8}{$000$}};
+ \node at (0.5,-1){\scalebox{0.8}{$001$}};
+ \node at (0.5,-2){\scalebox{0.8}{$010$}};
+ \node at (0.5,-3){\scalebox{0.8}{$011$}};
+ \node at (0.5,-4){\scalebox{0.8}{$100$}};
+ \node at (0.5,-5){\scalebox{0.8}{$101$}};
+ \node at (0.5,-6){\scalebox{0.8}{$110$}};
+ \node at (0.5,-7){\scalebox{0.8}{$111$}}; 
+ \node at (1.5,0.2){\scalebox{0.5}{$h_1 = [1 1 0]$}};
+ \node at (2.5,0.2){\scalebox{0.5}{$h_2 = [0 1 1]$}};
+ \node at (3.5,0.2){\scalebox{0.5}{$h_3 = [1 0 1]$}};
+ \node at (4.5,0.2){\scalebox{0.5}{$h_4 = [0 1 0]$}};
+ \node at (5.5,0.2){\scalebox{0.5}{$h_5 = [0 0 1]$}};
+
+ \node at (1,-7.3){\scalebox{0.8}{$\mathbf{s}_1$}};
+ \node at (2,-7.3){\scalebox{0.8}{$\mathbf{s}_2$}};
+ \node at (3,-7.3){\scalebox{0.8}{$\mathbf{s}_3$}};
+ \node at (4,-7.3){\scalebox{0.8}{$\mathbf{s}_4$}};
+ \node at (5,-7.3){\scalebox{0.8}{$\mathbf{s}_5$}};
+ \node at (6,-7.3){\scalebox{0.8}{$\mathbf{s}_6$}};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h0) at (1,0){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h1) at (2,0){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h2) at (3,0){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h3) at (4,0){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h4) at (5,0){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p000h5) at (6,0){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h0) at (1,-1){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h1) at (2,-1){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h2) at (3,-1){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h3) at (4,-1){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h4) at (5,-1){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p001h5) at (6,-1){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h0) at (1,-2){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h1) at (2,-2){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h2) at (3,-2){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h3) at (4,-2){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h4) at (5,-2){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p010h5) at (6,-2){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h0) at (1,-3){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h1) at (2,-3){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h2) at (3,-3){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h3) at (4,-3){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h4) at (5,-3){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p011h5) at (6,-3){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h0) at (1,-4){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h1) at (2,-4){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h2) at (3,-4){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h3) at (4,-4){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h4) at (5,-4){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p100h5) at (6,-4){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h0) at (1,-5){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h1) at (2,-5){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h2) at (3,-5){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h3) at (4,-5){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h4) at (5,-5){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p101h5) at (6,-5){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h0) at (1,-6){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h1) at (2,-6){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h2) at (3,-6){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h3) at (4,-6){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h4) at (5,-6){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p110h5) at (6,-6){};
+
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h0) at (1,-7){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h1) at (2,-7){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h2) at (3,-7){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h3) at (4,-7){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h4) at (5,-7){};
+ \node[circle,fill=black,inner sep=0,minimum size=3pt](p111h5) at (6,-7){};
+
+	\draw (p000h0.center) -- (p000h1.center);
+	\draw (p000h1.center) -- (p000h2.center);
+	\draw (p000h2.center) -- (p000h3.center);
+	\draw (p000h3.center) -- (p000h4.center);
+	\draw (p000h4.center) -- (p000h5.center); 
+
+	\draw (p000h0.center) -- (p100h1.center);
+	\draw (p100h1.center) -- (p111h2.center);
+	\draw (p111h2.center) -- (p010h3.center);
+	\draw (p010h3.center) -- (p000h4.center);
+	\draw (p000h4.center) -- (p000h5.center); 
+
+	\draw (p000h0.center) -- (p100h1.center);
+	\draw (p100h1.center) -- (p100h2.center);
+	\draw (p100h2.center) -- (p001h3.center);
+	\draw (p001h3.center) -- (p001h4.center);
+	\draw (p001h4.center) -- (p000h5.center); 
+
+	\draw (p000h0.center) -- (p011h1.center);
+	\draw (p011h1.center) -- (p011h2.center);
+	\draw (p011h2.center) -- (p001h3.center);
+	\draw (p001h3.center) -- (p001h4.center);
+	\draw (p001h4.center) -- (p000h5.center); 
+
+\end{tikzpicture}
+\end{center}
+Consider the parity check matrix $H$ from the problem statement with the following labels: \\
+\begin{center}\begin{tikzpicture}
+\node at (0,0){
+	$\begin{bmatrix}
+		1 & 0 & 1 & 0 & 0 \\
+    0 & 1 & 0 & 1 & 0 \\
+	  0 & 1 & 1 & 0 & 1 \\ 
+\end{bmatrix}.$
+};
+
+\node at (-1  ,0.8){$c_1$};
+\node at (-1/2,0.8){$c_2$};
+\node at (0   ,0.8){$c_3$};
+\node at (1/2 ,0.8){$c_4$};
+\node at (1   ,0.8){$c_5$};
+\node at (-3/2,1/2){$z_1$};
+\node at (-3/2,0){$z_2$};
+\node at (-3/2,-1/2){$z_3$}; 
+\end{tikzpicture}
+\end{center}
+We construct the Tanner graph by creating an edge between a {\it bit} node $c_j$ and a {\it check} node $z_i$ when the parity matrix is equal to $1$ at $H_{i,j}$, which is given as
+\begin{center}
+\begin{tikzpicture}
+	\node[circle, inner sep = 0, minimum size=3pt,label=left:$c_1$,fill=black](c1) at (0,0){};
+	\node[circle, inner sep = 0, minimum size=3pt,label=left:$c_2$,fill=black](c2) at (0,-1){};
+	\node[circle, inner sep = 0, minimum size=3pt,label=left:$c_3$,fill=black](c3) at (0,-2){};
+	\node[circle, inner sep = 0, minimum size=3pt,label=left:$c_4$,fill=black](c4) at (0,-3){};
+	\node[circle, inner sep = 0, minimum size=3pt,label=left:$c_5$,fill=black](c5) at (0,-4){};
+	\node[rectangle, inner sep = 0, minimum height=5pt, minimum width=5pt,fill=black, label=right:$z_1$](z1) at (3,-2/3){};
+	\node[rectangle, inner sep = 0, minimum height=5pt, minimum width=5pt,fill=black, label=right:$z_2$](z2) at (3,-6/3){};
+	\node[rectangle, inner sep = 0, minimum height=5pt, minimum width=5pt,fill=black, label=right:$z_3$](z3) at (3,-10/3){};
+	\draw (c1.center) -- (z1.center);
+	\draw (c2.center) -- (z2.center);
+	\draw (c2.center) -- (z3.center);
+	\draw (c3.center) -- (z1.center);
+	\draw (c3.center) -- (z3.center);
+	\draw (c4.center) -- (z2.center);
+	\draw (c5.center) -- (z3.center);
+\end{tikzpicture}
+\end{center}
+\end{document}

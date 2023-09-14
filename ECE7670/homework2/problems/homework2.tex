@@ -1,0 +1,215 @@
+\documentclass{article}
+\usepackage[shortlabels]{enumitem}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usepackage[normalem]{ulem} % for strike through text
+\setlength{\headheight}{0in}
+\newcommand*{\mathcolor}{}
+\def\mathcolor#1#{\mathcoloraux{#1}}
+\newcommand*{\mathcoloraux}[3]{%
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3%
+  \endgroup
+ }
+\newcommand{\mathspace}[1]{\mathcolor{white}{#1}}
+\newcommand{\zerospace}[1]{\phantom{x^{#1}}}
+\newcommand{\zerospaceleft}[1]{\phantom{+x^{#1}}}
+\newcommand{\problemsep}{\leavevmode\\[0.05in] \rule[\baselineskip/4]{\textwidth}{1pt} \\[0.005in] \rule[\baselineskip]{\textwidth}{1pt}\vspace{-\baselineskip}\leavevmode\\[0.05in]}
+\newcommand{\statementsep}{\leavevmode\\[0.005in] \rule[\baselineskip/4]{\textwidth}{0.4pt}\leavevmode\\[0.005in]}
+\pagestyle{fancy}
+\rhead{\today}
+\lhead{Daniel Mortensen}
+\chead{Homework 2}
+
+\begin{document}
+% problem 2.1
+\noindent\underline{Exercise 2.1:} A group can be constructed by using the rotations and reflections of a regular pentagon into itself. The group operator is ``followed'' (e.g., a reflection$\rho$ ``followed by'' a rotation $\rho$). This is a permutation group, as in Example 2.14.
+\begin{enumerate}
+	\item How many elements are in this group?
+	\item Construct the group (i.e., show the ``multiplication table'' for the group)
+	\item Is it an Abelian group?
+	\item Find a subgropu uwith five elements anda subgroup with two elements.
+	\item Are there any subgroups with four elements? Why?
+\end{enumerate}
+\statementsep
+\begin{enumerate}
+	\item \textcolor{red}{Insert response here: }
+	\item \textcolor{red}{Insert response here: } 
+	\item \textcolor{red}{Insert response here: } 
+	\item \textcolor{red}{Insert response here: } 
+	\item \textcolor{red}{Insert response here: } 
+\end{enumerate} 
+\problemsep
+\noindent\underline{Exercise 2.2}: 
+Show that only one group exists with three elements ``up to isomorphism.'' that is, there is only one way of filling out a binary operation table that satisfies all the requirements of a group.
+\statementsep
+Let $a, b, $ and $c$ be the only elements in a group $G$ and let $a$ be the identity for this group (satisfying G2) so that our operation table becomes
+\begin{center}\begin{tabular}{c | c c c}
+	* & a & b & c \\ \hline
+  a & a & b & c \\
+  b & b &   &   \\
+  c & c &   &   \\
+\end{tabular} \end{center}
+Next, we determine the inverse for each element. Because $a$ is the identity, it is self-inverse which is already inferred. For the element $b$, the two options are $b*b = a$, or $b*c = a$. We know that $b*c \ne c$ because $a*c = c$, and if $b*c = c$, then that would imply that $b = a$ which it is not. Therefore, $b*c = a$ and $b*b = c$. Therefore, $b*c = a$ and consequently that $c*b = a$, per the definition of an inverse so that
+\begin{center}\begin{tabular}{c | c c c}
+	* & a & b & c \\ \hline
+  a & a & b & c \\
+  b & b &   & a \\
+  c & c & a &   \\
+\end{tabular} \end{center}
+Finally, we now that $b*b \ne a$ because $b*b = a$ and $b*c = a$ would imply that $b = c$ and so $b*b = c$. By that same logic, $c*c = b$ so that
+\begin{center}\begin{tabular}{c | c c c}
+	* & a & b & c \\ \hline
+  a & a & b & c \\
+  b & b & c & a \\
+  c & c & a & b \\
+\end{tabular} \end{center}
+
+\problemsep
+% problem 2.3
+\noindent\underline{Exercise 2.3:} Show that there are two groups with four elements ``up to isomorphism.'' One of these groups is isomorphic to $\mathbb{Z}_4$. The other is called the Klein 4-group.  
+\statementsep
+Let the group $G = \{ a, b, c, d\} $ and let the identity be $a$ so that the the operation table becomes
+\begin{center}
+	\begin{tabular}{c | c c c c}
+	* & a & b & c & d \\ \hline
+  a & a & b & c & d \\ 
+  b & b &   &   &   \\
+  c & c &   &   &   \\
+  d & d &   &   &   \\
+\end{tabular}
+\end{center}
+Because $G$ is a group, we know that each element must have an inverse. The inverse of $a$ is itself, which leaves $b, c,$ and $d$. Inverse values come in pairs because $ab = 1 \implies ba = 1$. Therefore, either $b, c,$ and $d$ must all be self inverse, or one is self inverse and the remaining two elements are inverse to each other. Without loss of generality, we all three to be self inverse so that
+\begin{center}
+	\begin{tabular}{c | c c c c}
+	* & a & b & c & d \\ \hline
+  a & a & b & c & d \\ 
+  b & b & a &   &   \\
+  c & c &   & a &   \\
+  d & d &   &   & a \\
+\end{tabular}
+\end{center} 
+The remaining values are constrained so that each column includes all four elements. If a column has a repeated element, then we could show that the values in the group are not unique, which requires the remaining elements to be
+\begin{center}
+	\begin{tabular}{c | c c c c}
+	* & a & b & c & d \\ \hline
+  a & a & b & c & d \\ 
+  b & b & a & d & c \\
+  c & c & d & a & b \\
+  d & d & c & b & a \\
+\end{tabular}
+\end{center} 
+If we select only one value to be self-inverse, then the remaining constraints require the group operator to act so that \begin{center}
+	\begin{tabular}{c | c c c c}
+	* & a & b & c & d \\ \hline
+  a & a & b & c & d \\ 
+  b & b & a & d & c \\
+  c & c & d & b & a \\
+  d & d & c & a & b \\
+\end{tabular}
+\end{center} 
+Therefore, there are only two 4-element groups up to isomorphism. The first has four self-inverse elements, and the second has two with the remaining relationships defined by the definition of a group.
+\problemsep
+% problem 1.4
+\noindent\underline{Exercise 2.4: } 
+Prove that in a group $G$, the identity element is unique.
+\statementsep
+Let $a$ and $b$ be identity elements in a group $G$. Because both are identitys, then $a*b = a = b$, which implies that $a = b$. Therefore, if two elements are identitys, then they are equal and thus, the identity element is unique.
+\problemsep
+%problem 1.11
+\noindent\underline{Exercise 2.6}
+Let $G = \langle \mathbb{Z}_{16},+ \rangle$, the group of integers modulo 16. Let $H = \langle 4\rangle$, the cyclic gropu generated by the element %4\in G$.
+\begin{enumerate}
+	\item List the elements of $H$.
+	\item Determine the cosets of $G/H$.
+	\item Draw the ``addition'' table for $G/H$.
+	\item To what group is $G/H$ isomorphic?
+\end{enumerate}
+\statementsep
+\begin{enumerate}
+	\item Recall that the cyclic sub-group $\lvert a \rvert$ is the set of elements $a^n$ such that $a^n \in G, n \in \mathbb{Z}$. By this definition, the elements of $H = \{ 0, 4, 8, 12 \}$ because the group $G$ is defined under addition.
+	\item The cosets of $G/H$ are defined as the sets $a*H$ for all $a \in H$. Therefore, our cosets are $H$ plus $0, 1, 2$, and $3$ because afterwords, all other cosets are equivalent to one of these four. This gives $S_0 = \{ 0, 4, 8, 12\}, S_1 = \{1, 5, 9, 13\}, S_2 = \{2, 6, 10, 14\},$ and $S_3 = \{3, 7, 11, 15\}$.
+	\item         
+	\item \textcolor{red}{Insert response here: }	
+\end{enumerate}
+\problemsep
+%problem 1.13
+\noindent\underline{Exercise 2.9}
+Let $G$ be a cyclic group with  generator $a$ and let $\mathcal{G}$ be a group isomorphic to $G$. If $\phi : G \rightarrow \mathcal{G}$ is an isomorphism, show that for every $x \in G, x$ may be written as $a^j$ (for some $j$, using multiplicative notation) and that $\phi(x)$ is determined by $\phi(a)$.
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+%problem1.14
+\noindent\underline{Exercise 2.10}
+An automorphism of a group$G$ is an isomorphism of the group with itself, $\phi: G \rightarrow G$. Using Exercise 2.9, how many automorphisms are there of $\mathbb{Z}_2$? of $\mathbb{Z}_6$? of $\mathbb{Z}_8$? of $\mathbb{Z}_{17}$?
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+%problem 1.16
+\noindent\underline{Exercise 2.17}
+Show tha tif $G, G'$, and $G''$ are groups and $\phi : G\rightarrow G'$ and $\psi : G' \rightarrow G''$ are homomorphisms, then the composite function $\psi \circ \phi : G \rightarrow G''$ is a homomorphism.
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+% problem 1.18
+\noindent\underline{Exercise 2.18}
+Consider the set $S = {0, 1, 2, 3}$ with the operations \\[0.05in]
+\begin{center}
+\begin{tabular}{c | c c c c}
++ & 0 & 1 & 2 & 3 \\ \hline
+0 & 0 & 1 & 2 & 3 \\
+1 & 1 & 2 & 3 & 0 \\
+2 & 2 & 3 & 0 & 1 \\
+3 & 3 & 0 & 1 & 2 \\
+\end{tabular} \hspace{0.2in}
+\begin{tabular}{c | c c c c}
+$\cdot$ & 0 & 1 & 2 & 3 \\ \hline
+0       & 0 & 0 & 0 & 0 \\
+1       & 0 & 1 & 2 & 3 \\
+2       & 0 & 2 & 3 & 1  \\
+3       & 0 & 3 & 1 & 2 \\
+\end{tabular} 
+\end{center}
+Is this a field? if not, why not?
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+% problem 1.19
+\noindent\underline{Exercise 2.19}
+Construct the addition and multiplication tables for $\langle \mathbb{Z}_4,+,\cdot \rangle$ and comapre to the tables in equation (2.4). Does $\langle \mathbb{Z}_4,+,\cdot \rangle$ form a field?
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+%problem 1.21
+\noindent\underline{Exercise 2.20}
+Use the representation of GF(4) in (2.4) to solve the following pair of equations:
+\begin{equation*} \begin{aligned}
+2x + y = 3 \\
+x + 2y = 3 \\
+\end{aligned}\end{equation*}
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+%problem 1.22
+\noindent\underline{Exercise 2.22}
+Let $G = \{\mathbf{v}_1, \mathbf{v}_2 \hdots, \mathbf{v}_k \}$ be a basis for a vector space $B$. Show that for every vector $\mathbf{v} \in V$, there is a {\it unique} representation for $\mathbf{v}$ as a linear combination of the vectors i n $G$.
+\statementsep
+\textcolor{red}{Insert response here: }
+\problemsep
+%problem 1.23
+\noindent\underline{Exercise 2.24}
+Let $V$ be a vector space, and let $W \subset V$ be a subspace. The dual space $W^{\perp}$ of $W$ is the set of vectors in $V$ which are orthogonal to everyvector in $W$. Show that the dual space $W^{\perp}$ is a subspace of $V$.  
+\statementsep
+\textcolor{red}{Insert response here: }
+\end{document}
