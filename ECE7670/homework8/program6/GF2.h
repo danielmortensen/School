@@ -4,10 +4,9 @@
 
 #ifndef PROGRAM_GF2_H
 #define PROGRAM_GF2_H
-#define MODPLUS(a) ((a%(nElement-1) + (nElement-1))%(nElement-1))
 
 enum viewmodeenum{vector, power, binary};
-enum staticoption{generator, defaultinputtype, viewmode};
+enum staticoption{viewmode};
 enum inputmode{integer, exponent};
 
 template <uint32_t G>
@@ -21,6 +20,7 @@ private:
     static inline uint32_t* toVector{nullptr};
     static inline bool isInitialized{false};
     static inline enum viewmodeenum viewAs{vector};
+    static inline uint32_t modplus(int64_t a) { return ((a%(nElement-1) + (nElement-1))%(nElement-1)); } //TODO: Make this faster, take advantage of the fact that we are modulo 2^n - 1 perhaps...
 
     static void init()
     {
@@ -58,14 +58,14 @@ private:
 
 public:
     uint32_t value;
-    GF2(uint32_t v, inputmode inputAs = integer)
+    GF2(int64_t v, inputmode inputAs = integer)
     {
         init();
         if(!isInitialized)
         {
             throw std::invalid_argument("Cannot run until initialized");
         }
-        value = (inputAs == exponent)?toVector[MODPLUS(v)]: v;
+        value = (inputAs == exponent)?toVector[modplus(v)]: v;
     }
     GF2():value{0}{}
     GF2(const GF2& input) = default;
@@ -99,7 +99,7 @@ public:
         }
         else
         {
-           return {MODPLUS(toPower[value] + toPower[a]),exponent};
+           return {modplus(toPower[value] + toPower[a]),exponent};
         }
     }
     GF2 operator/(const int a) const
@@ -108,7 +108,7 @@ public:
         {
             throw std::invalid_argument("Cannot divide by zero");
         }
-        return {MODPLUS(toPower[value] - toPower[a]),exponent};
+        return {modplus(toPower[value] - toPower[a]),exponent};
     }
     bool operator==(const int a)const {return a == value;}
     bool operator!=(const int a)const {return a != value;}
@@ -130,7 +130,7 @@ public:
     GF2& operator-=(const int a) {value^=a; return *this;}
     GF2& operator*=(const int a)
     {
-        value = (value == 0 | a == 0)?0:toVector[MODPLUS(toPower[value] + toPower[a])];
+        value = (value == 0 | a == 0)?0:toVector[modplus(toPower[value] + toPower[a])];
         return *this;
     }
     GF2& operator/=(const int a)
@@ -139,7 +139,7 @@ public:
         {
             throw std::invalid_argument("Cannot divide by zero");
         }
-        value = toVector[MODPLUS(toPower[value] - toPower[a])];
+        value = toVector[modplus(toPower[value] - toPower[a])];
         return *this;
     }
 
@@ -148,7 +148,7 @@ public:
     GF2& operator-=(const GF2 &a) { value ^= a.value; return *this;}
     GF2& operator*=(const GF2 &a)
     {
-        value = (value == 0|a.value == 0)?0:toVector[MODPLUS(toPower[a.value]+toPower[value])];
+        value = (value == 0|a.value == 0)?0:toVector[modplus(toPower[a.value]+toPower[value])];
         return *this;
     }
     GF2& operator/=(const GF2 &a)
@@ -157,10 +157,10 @@ public:
         {
             throw std::invalid_argument("Cannot divide by zero");
         }
-        value = toVector[MODPLUS(toPower[value] - toPower[a.value])];
+        value = toVector[modplus(toPower[value] - toPower[a.value])];
         return *this;
     }
-    GF2& operator^=(const int exp){value = toVector[MODPLUS(toPower[value]*exp)]; return *this;}
+    GF2& operator^=(const int exp){value = toVector[modplus(toPower[value]*exp)]; return *this;}
 
     // GF2 -- GF2 operators
     GF2 operator+(const GF2 &a) const {
@@ -171,7 +171,7 @@ public:
             return {0, integer};
         else
         {
-            return {MODPLUS(toPower[a.value] + toPower[value]),exponent};
+            return {modplus(toPower[a.value] + toPower[value]),exponent};
         }
     }
     GF2 operator/(const GF2 &a) const
@@ -180,11 +180,11 @@ public:
         {
             throw std::invalid_argument("Cannot divide by zero");
         }
-        return {MODPLUS(toPower[value] - toPower[a.value]),exponent};
+        return {modplus(toPower[value] - toPower[a.value]),exponent};
     }
     GF2 operator^(const int e) const
     {
-        return {MODPLUS(toPower[value]*e),exponent};
+        return {modplus(toPower[value]*e),exponent};
     }
     bool operator==(const GF2 &a) const {return (a.value == value);}
     bool operator!=(const GF2 &a) const {return (a.value != value);}
