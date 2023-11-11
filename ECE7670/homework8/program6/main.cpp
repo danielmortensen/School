@@ -133,8 +133,7 @@ int main()
 
     // Preliminary Exercise 2 for berlekampmassey method
     {
-        GF2::set(generator,0b11);
-        GF2 s[] = {1, 1, 1, 0, 1, 0, 0};
+        GF2<0b11> s[] = {1, 1, 1, 0, 1, 0, 0};
         int nElement = 7;
         auto output = berlekampmassy(s, nElement);
         std::cout<<"Preliminary Exercise 2, berlekampmassey: " << output << std::endl;
@@ -142,9 +141,8 @@ int main()
 
     // Preliminary Exercise 3 for berlekampmassey method
     {
-        GF2::set(generator, 0b10011);
-        GF2::set(viewmode,power);
-        GF2 s[] = {0, {3,exponent}, {4,exponent}, {7,exponent}};
+        GF2<0b10011>::set(viewmode,power);
+        GF2<0b10011> s[] = {0, {3,exponent}, {4,exponent}, {7,exponent}};
         int nElement = 4;
         auto output = berlekampmassy(s,nElement);
         std::cout<<"Preliminary Exercise 3, berlekampmassey: " << output << std::endl;
@@ -167,10 +165,9 @@ int main()
 
     // Preliminary Exercise 2 for berlekampmassey method
     {
-        GF2::set(generator,0b11);
-        GF2 s[] = {1, 1, 1, 0, 1, 0, 0};
+        GF2<0b11> s[] = {1, 1, 1, 0, 1, 0, 0};
         int nElement = 7;
-        auto c = new GF2[nElement]();
+        auto c = new GF2<0b11>[nElement]();
         int L{0};
         berlekampmassy2(s, nElement, c, L);
         std::cout<<"Preliminary Exercise 2, berlekampmassey2: ";
@@ -183,11 +180,10 @@ int main()
 
     // Preliminary Exercise 3 for berlekampmassey method
     {
-        GF2::set(generator, 0b10011);
-        GF2::set(viewmode,power);
-        GF2 s[] = {0, {3,exponent}, {4,exponent}, {7,exponent}};
+        GF2<0b10011>::set(viewmode,power);
+        GF2<0b10011> s[] = {0, {3,exponent}, {4,exponent}, {7,exponent}};
         int nElement = 4;
-        auto c = new GF2[nElement]();
+        auto c = new GF2<0b10011>[nElement]();
         int L{0};
         berlekampmassy2(s,nElement, c, L);
         std::cout<<"Preliminary Exercise 3, berlekampmassey2: ";
