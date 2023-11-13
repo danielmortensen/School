@@ -4,7 +4,8 @@
 // Copyright 2004 by Todd K. Moon
 // Permission is granted to use this program/data
 // for educational/research only
-
+#ifndef POLYNOMIALT_CC
+#define POLYNOMIALT_CC
 #include <assert.h>
 #include "polynomialT.h"
 extern "C" {
@@ -1075,3 +1076,4 @@ Local Variables:
 compile-command: "g++ -c -g polynomialT.cc"
 End:
 */
+#endif
