@@ -14,24 +14,84 @@ namespace numsys{
     enum inputmode {
         integer, exponent
     };
+    enum generatortype {binarygen, degree, rootofunity};
 
-    template<uint32_t G>
+    template<uint32_t G, generatortype D=degree>
     class GF2 {
     private:
-        const static inline uint32_t gen{G};
+        static inline uint32_t getgen()
+        {
+            switch(D)
+            {
+                case binarygen:
+                    return G;
+                case degree:
+                    return primfind(G);
+                case rootofunity:
+                    int m = 0;
+                    int val = 2;
+                    while((val - 1)%G != 0){val <<= 1; m ++;}
+                    std::cout<<"m:: " << m << std::endl;
+                    return primfind(m);
+            }
+        }
+        static inline uint32_t gen{0};
         static inline uint32_t genDegree{0};
         static inline uint32_t nElement{0};
         static inline int64_t *toPower{nullptr};
         static inline int64_t *toVector{nullptr};
         static inline bool isInitialized{false};
         static inline enum viewmodeenum viewAs{vector};
+        generatortype selectGeneratorBy{D};
 
         static inline uint32_t modplus(int64_t a) {
             return ((a % (nElement - 1) + (nElement - 1)) % (nElement - 1));
         } //TODO: Make this faster, take advantage of the fact that we are modulo 2^n - 1 perhaps...
+        static int primfind(int nDegree)
+        {
+            switch (nDegree) {
+                case 1:
+                    return 0b11;
+                case 2:
+                    return 0b111;
+                case 3:
+                    return 0b1011;
+                case 4:
+                    return 0b10011;
+                case 5:
+                    return 0b100101;
+                case 6:
+                    return 0b1000011;
+                case 7:
+                    return 0b10000011;
+                case 8:
+                    return 0b100011101;
+                case 9:
+                    return 0b1000010001;
+                case 10:
+                    return 0b10000001001;
+                case 11:
+                    return 0b100000000101;
+                case 12:
+                    return 0b1000001010011;
+                case 13:
+                    return 0b10000000011011;
+                case 14:
+                    return 0b100000101000011;
+                case 15:
+                    return 0b1000000000000011;
+                case 16:
+                    return 0b10000001111011101;
+                default:
+                    std::cerr << "given value: " << nDegree <<  " invalid primitive degree, must be between 1 and 15 (inclusive)";
+                    exit(-1);
+            }
+        }
+
 
         static void init() {
             if (!isInitialized) {
+                gen = getgen();
                 genDegree = toDegree(gen);
                 nElement = 1 << genDegree;
                 toPower = new int64_t[nElement];
@@ -70,16 +130,85 @@ namespace numsys{
             value = (inputAs == exponent) ? toVector[modplus(v)] : v;
         }
 
+        template<uint32_t M>
+        GF2(GF2<M> in)
+        {
+            if(genDegree == in.genDegree)
+            {
+                value = (in.value == 0)?0:toVector[in.toPower[in.value]];
+                selectGeneratorBy=degree;
+            }
+            else
+            {
+                std::cerr << "GF2<" << M << "> and GF2<" << G << "> are incompatible.";
+                exit(-1);
+            }
+        }
+        template<uint32_t M>
+        operator GF2<M>() const
+        {
+            if(!GF2<M>::isInitialized)
+            {
+                std::cerr << "cannot cast to uninitialized templated class.";
+                exit(-1);
+            }
+            else if(GF2<M>::genDegree != genDegree)
+            {
+                std::cerr << "cannot cast to class with generator of differing degree.";
+                exit(-1);
+            }
+            else
+            {
+                return {toPower[value],exponent};
+            }
+        }
+        template<uint32_t M>
+        GF2<G>& operator=(const GF2<M> in)
+        {
+            if(in.genDegree == genDegree)
+            {
+                value = (in.value==0)?0:in.toPower[in.value];
+            }
+            else
+            {
+                std::cerr << "invalid assignmnet, must have equivalent generators.";
+                exit(-1);
+            }
+        }
+        template<uint32_t M>
+        bool operator==(const GF2<M> in)
+        {
+            if(in.gen == gen) return (in.value == value);
+            else return false;
+        }
+        template<uint32_t M>
+        bool operator!=(const GF2<M> in)
+        {
+            if(in.gen == gen) return (in.value != value);
+            else return true;
+        }
+
+        //explicit GF2(int64_t v, generatortype defineby=degree, inputmode inputAs = integer) {
+        //    init(defineby);
+        //    if (!isInitialized) {
+        //        throw std::invalid_argument("Cannot run until initialized");
+        //    }
+        //    value = (inputAs == exponent) ? toVector[modplus(v)] : v;
+        //}
+
         GF2() : value{0} {}
 
         GF2(const GF2 &input) = default;
-
         GF2 &operator=(const GF2 &input) = default;
 
         ~GF2() = default;
 
-        template<class T>
-        static void set(staticoption opt, T input) {
+        uint32_t exp()
+        {
+            return toPower[value];
+        }
+        template<class B>
+        static void set(staticoption opt, B input) {
             switch (opt) {
                 case viewmode: {
                     GF2::viewAs = viewmodeenum(input);

@@ -3,30 +3,27 @@
 //
 #include<iostream>
 #include"GF2.h"
-#include"ModAr.h"
 #include"algorithm.hpp"
 #include"polynomialT.h"
-#include"polynomialT.cc"
+
 
 #include"test_berlekampmassey.cpp"
-template<uint32_t T>
-polynomialT<numsys::GF2<T>> chiensearch(polynomialT<numsys::GF2<T>> error)
-{
 
-    // compute number of options per coefficient
-    auto val = T;
-    int idx = 0;
-    while(val != 0) { val >>= 1; idx ++; }
-    int nVal = (1 << (idx - 1));
-
-    //
-    return error;
-}
 int main()
 {
 //    test_berlekampmassey();
-    polynomialT<numsys::GF2<0b10011>> test{1};
-    auto temp = chiensearch(test);
+//    numsys::GF2<0b10011>::set(numsys::viewmode,numsys::power);
+//    numsys::GF2<0b10011> temp[] = {1, 1, 0,{5,numsys::exponent}};
+//    auto output = alg::chiensearch(polynomialT<numsys::GF2<0b10011>>{3, temp});
+//    for(auto c : output)
+//    {
+//        std::cout << c << " ";
+//    }
+//    std::cout<<std::endl;
+    uint32_t data{0b010100001000000};
+    int nData = 15;
+    int nErrorCapacity = 3;
+    alg::decode<15>(data,nErrorCapacity);
     return 0;
 
 }
