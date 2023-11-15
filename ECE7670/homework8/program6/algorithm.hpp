@@ -6,18 +6,24 @@
 #include"polynomialT.h"
 #include"polynomialT.cc"
 #include<vector>
+
+template<uint32_t N>
+using GF2Rou = numsys::GF2<numsys::rouToDeg<N>()>;
+using cint32 = const int32_t&;
+
 namespace alg {
-    enum inputtype {
-        BCH, none
+
+    enum decodemethod{
+        ReedSolomon, BCH
     };
 
-    template<class T>
-    polynomialT<T> berlekampmassy(const T *s, int n, inputtype optimizefor = none) {
+    template<uint32_t nSymbol = 2, class T>
+    polynomialT<T> berlekampmassy(const T *s, int n) {
         int L = 0;
         polynomialT<T> c{1};
         polynomialT<T> p{1};
         polynomialT<T> x{1};
-        int loopincrement = optimizefor == none ? 1 : 2;
+        int loopincrement = (nSymbol == 1) ? 2 : 1;
 
         int l{1};
         T dm{1};
@@ -41,21 +47,20 @@ namespace alg {
                     l = 1;
                 }
             }
-            l += (optimizefor == BCH) ? 1 : 0;
+            l += (nSymbol == 1) ? 1 : 0;
         }
         return c;
     }
 
-
-    template<class T>
-    void berlekampmassy(const T *s, int n, T *c, int &L, inputtype optimizefor = none) {
+    template<uint32_t nSymbol=2, class T>
+    void berlekampmassy(const T *s, int n, T *c, int &L) {
 
         //preallocate placeholders and temporary variables
         auto out = c;
         T *p = new T[n]();
         T *t = new T[n]();
         T *temp;
-        int loopincrement = optimizefor == none ? 1 : 2;
+        int loopincrement = (nSymbol == 1) ? 2 : 1;
 
         // initialize memory
         c[0] = 1;
@@ -103,7 +108,7 @@ namespace alg {
                     l = 1;
                 }
             }
-            l += (optimizefor == BCH) ? 1 : 0;
+            l += (nSymbol == 1) ? 1 : 0;
         }
 
         // package data for export
@@ -146,13 +151,6 @@ namespace alg {
 
         // compute number of options per coefficient
         auto nVal = (1 << T);
-//        int idx = 0;
-//        while (val != 0) {
-//            val >>= 1;
-//            idx++;
-//        }
-//        int nVal = (1 << (idx - 1));
-
         auto nDegree = nError - 1;
         numsys::GF2<T> curr, base, f;
         int zeroIdx = 0;
@@ -169,121 +167,117 @@ namespace alg {
             }
         }
         nZero = zeroIdx;
+
     }
-    template<uint32_t N>
-    constexpr uint32_t nToGf2()
-    {
-        uint32_t r = 1;
-        uint32_t m = 0;
-        uint32_t val = 1;
-        while(r != 0)
-        {
-            val*=2; m++;
-            r = ((val - 1)^N)%N;
-        }
-        return m;
-    }
+
     template<uint32_t D>
-    constexpr numsys::GF2<nToGf2<D>()>beta()
+    constexpr GF2Rou<D>beta()
     {
-        constexpr uint32_t gf = nToGf2<D>();
+        constexpr uint32_t gf = numsys::rouToDeg<D>();
         constexpr uint32_t p = ((1 << gf) - 1)/D;
         return numsys::GF2<gf>{p,numsys::exponent};
     }
 
-    template<uint32_t N>
-    void computesyndrome(const uint32_t& data, const int& nErrorCapacity, numsys::GF2<nToGf2<N>()>* s, const uint32_t& b=1)
+    template<uint32_t N, uint32_t D = 1> // D is the number of bits per symbol
+    void computesyndrome(uint32_t* data, const int& nData, const int& nErrorCapacity, GF2Rou<N>* s, const uint32_t& b=1)
     {
         auto base{beta<N>()};
         auto currBeta{beta<N>()^b};
+        const uint32_t mask{(1 << D) - 1};
+        const uint32_t nSymbolPerPacket = 32/D;
+        const uint32_t nPacket = ((nData/32) + (((nData/32)*32) != nData)) + 1;
+        uint32_t iBeta = 0;
         for(int iSyndrome = 0; iSyndrome < nErrorCapacity*2; iSyndrome++)
         {
-            s[iSyndrome] = (data >> (N - 1))%2;
-            for(int iData = 1; iData < N; iData++)
+            for(int iPacket= 0; iPacket < nPacket; iPacket++)
             {
-                auto val = (data >> (N - iData - 1))%2;
-                if(val == 1) s[iSyndrome] += currBeta^iData;
+                auto working = data[iPacket];
+                for(int iSymbol= 0; iSymbol < nSymbolPerPacket; iSymbol++)
+                {
+                    auto sample = GF2Rou<N>{working&mask};
+                    if(sample == 0) continue;
+                    else  s[iSyndrome] += sample*(currBeta^(iBeta));
+                    working >>= D;
+                    iBeta++;
+                }
             }
             currBeta*=base;
         }
     }
-    template<class M>
-    M evaluatepoly(const M& x, const M* p, const int& n)
-    {
-        M output{p[0]};
-        auto tempx = x;
-        for(int i = 1; i < n; i++)
-        {
-            output+=p[i]*tempx;
-            tempx*=x;
-        }
-        return output;
-    }
 
     template<uint32_t N>
-    void forney(numsys::GF2<nToGf2<N>()>* c, const int& nC, numsys::GF2<nToGf2<N>()>* s, const int &nS, numsys::GF2<nToGf2<N>()>* errloc, const int& nErrloc, numsys::GF2<nToGf2<N>()>* e, const uint32_t& b=1)
+    void forney(GF2Rou<N>* errLocPoly, cint32 nErrLocPoly, GF2Rou<N>* s, cint32 nS, GF2Rou<N>* errLoc, cint32 nErrLoc, GF2Rou<N>* e, cint32 b=1)
     {
-        // compute polynomial multiplication
-        int nConv= std::min((nC - 1)*(nS - 1) + 1, nS);
-        numsys::GF2<nToGf2<N>()> temp[nConv];
-        for(int k = 0; k < nConv; k++)
+        // compute polynomial multiplication, error locator poly < syndrome poly
+        // 2t is the number of syndrome values
+        GF2Rou<N> errCorrPoly[nS];
+        for(int k = 0; k < nS; k++)
         {
-            temp[k] = 0;
-            for(int i = std::max(0,k - nS + 1); i < std::min(nS,k); i++)
+            for(int i = std::max(0,k - nS + 1); i < std::min(nErrLocPoly,k + 1); i++)
             {
-                temp[k] += (s[i]*c[k-i]);
+                errCorrPoly[k%nS] += (errLocPoly[i]*s[k-i]);
             }
         }
 
-        numsys::GF2<nToGf2<N>()> den;
-        for(int iErr = 0; iErr < nC; iErr++)
-        {
-            auto num = evaluatepoly((errloc[iErr]^(-1)), c,nC);
-            den = c[1];
-            for(int iC = 3; iC < nC - (nC - 1)%2; iC+=2)
-            {
-                den+=c[iC]*(errloc[iErr]^(-iC));
-            }
-            den *= ((errloc[iErr]^(b-1)));
-            e[iErr] = num/den;
-            std::cout<<e[iErr]<<std::endl;
-        }
-    }
-
-
-    template<uint32_t N>
-    void decode(uint32_t data, int nErrorCapacity, uint32_t b=1)
-    {
-        // preallocate and initialize
-        constexpr uint32_t G = nToGf2<N>();
-        int nSyndrome = nErrorCapacity*2;
-        numsys::GF2<G>::set(numsys::viewmode,numsys::power);
-
-        // compute syndrome values
-        numsys::GF2<G> s[nSyndrome]={0};
-        computesyndrome<N>(data,nErrorCapacity, s);
-        
-        // compute error-locator polynomial
-        numsys::GF2<G> c[nSyndrome] = {0};
-        int L{0};
-        berlekampmassy(s,nSyndrome,c,L);
-
-        // compute zeros for error-locator polynomial
-        numsys::GF2<G> zeros[nSyndrome] = {};
-        int nZero{0};
-        chiensearch(c,nErrorCapacity*2,zeros,nZero);
-
-        // error locations are the reciprocals of the zero values
-        uint32_t errloc[nZero];
-        for(int i = 0; i < nZero; i++)
-        {
-            errloc[i] = (zeros[i]^(-1)).exp();
-        }
+        // compute derivative of the error locator polynomial
+        auto dErrLocPoly = new GF2Rou<N>[nErrLocPoly - 1]();
+        for(int i = 0; i < nErrLocPoly - 1; i+=2)  dErrLocPoly[i] = errLocPoly[i+1];
 
         // compute error values
-        numsys::GF2<G> corrected[nZero]{0};
-        forney<N>(c, L, s, nSyndrome,zeros,nZero,corrected);
+        GF2Rou<N> xDErrLoc;
+        GF2Rou<N> xErrEval;
+        for(int i = 0; i < nErrLoc; i++)
+        {
+            xDErrLoc = 0;
+            for(int j = 0; j < nErrLocPoly; j+=2) xDErrLoc += (dErrLocPoly[j]*(errLoc[i]^(-j)));
 
+            xErrEval = 0;
+            for(int j = 0; j < nS; j++)
+            {
+                xErrEval += errCorrPoly[j]*(errLoc[i]^(-j));
+
+            }
+            e[i] = -(xErrEval/(xDErrLoc*((errLoc[i])^(b-1))));
+        }
+    }
+
+
+    template<uint32_t nCode, uint32_t nSymbol>
+    void decode(uint32_t* data, const uint32_t& nDataSymbol, const int nErrorCapacity, const uint32_t b=1)
+    {
+        // preallocate and initialize
+        int nSyndrome = nErrorCapacity*2;
+        GF2Rou<nCode>::set(numsys::viewmode,numsys::power);
+
+        // compute syndrome values
+        GF2Rou<nCode> s[nSyndrome]={0};
+        computesyndrome<nCode,nSymbol>(data,nDataSymbol, nErrorCapacity, s);
+
+        // compute error-locator polynomial
+        GF2Rou<nCode> errLocPoly[nSyndrome] = {0};
+        int nErrLocPoly{0};
+        berlekampmassy<nSymbol>(s,nSyndrome,errLocPoly,nErrLocPoly);
+
+        // compute error locations
+        GF2Rou<nCode> errLoc[nSyndrome] = {}; int nErrLoc{0};
+        chiensearch(errLocPoly,nErrorCapacity*2,errLoc,nErrLoc);
+        for(auto& d : errLoc){d = d^(-1);}
+
+        // compute error values
+        GF2Rou<nCode> corrected[nErrLoc]{0};
+        forney<nCode>(errLocPoly, nErrLocPoly, s, nSyndrome, errLoc, nErrLoc, corrected);
+
+        // apply corrections
+        const uint32_t nBitPerSymbol{numsys::rouToDeg<nCode>()};
+        const uint32_t symbolPerPacket{32/nBitPerSymbol};
+        uint32_t loc, packetLoc, bitLoc;
+        for(int iErr = 0; iErr < nErrLoc; iErr++)
+        {
+            loc = errLoc[iErr].exp();
+            packetLoc = loc/symbolPerPacket;
+            bitLoc = (loc - packetLoc*symbolPerPacket)*nBitPerSymbol;
+            data[packetLoc]^=(corrected[iErr].value << bitLoc);
+        }
     }
 }
 

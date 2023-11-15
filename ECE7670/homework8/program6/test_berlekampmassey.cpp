@@ -86,7 +86,7 @@ int test_berlekampmassey() {
                                     {10, numsys::exponent},
                                     {5,  numsys::exponent}};
         int nElement = 6;
-        auto output = alg::berlekampmassy(s, nElement, alg::BCH);
+        auto output = alg::berlekampmassy<1>(s, nElement);
         std::cout << "Expected: 1 + x + a^5x^3, Computed: " << output << std::endl;
     }
 // verifies the sequence {a^14, a^13, 1, a^11, a^5, 1} produces 1 + a^14x + a^11x^2 + a^14x^3
@@ -99,7 +99,7 @@ int test_berlekampmassey() {
                                     {5,  numsys::exponent},
                                     {0,  numsys::exponent}};
         int nElement = 6;
-        auto output = alg::berlekampmassy(s, nElement, alg::BCH);
+        auto output = alg::berlekampmassy<1>(s, nElement);
         std::cout << "Expected: 1 + a^14x + a^11x^2 + a^14x^3, Computed: " << output << std::endl;
     }
 
@@ -207,7 +207,7 @@ int test_berlekampmassey() {
         int nElement = 6;
         auto c = new numsys::GF2<4>[nElement]();
         int L{0};
-        alg::berlekampmassy(s, nElement, c, L, alg::BCH);
+        alg::berlekampmassy<1>(s, nElement, c, L);//, alg::BCH);
         std::cout << "berlekampmassey2: Expected: 1, 1, 0, a^5. Computed: ";
         for (int i = 0; i < L; i++) {
             std::cout << c[i] << " ";
@@ -225,7 +225,7 @@ int test_berlekampmassey() {
         int nElement = 6;
         auto c = new numsys::GF2<4>[nElement]();
         int L{0};
-        alg::berlekampmassy(s, nElement, c, L, alg::BCH);
+        alg::berlekampmassy<1>(s, nElement, c, L);// alg::BCH);
         std::cout << "berlekampmassey2: Expected: 1 a^14 a^11 a^14. Computed: ";
         for (int i = 0; i < L; i++) {
             std::cout << c[i] << " ";
