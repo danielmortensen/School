@@ -168,7 +168,8 @@ namespace numsys{
             if (a == 0) {
                 throw std::invalid_argument("Cannot divide by zero");
             }
-            return {modplus(toPower[value] - toPower[a]), exponent};
+            else if(value == 0) return {0, integer};
+            else return {modplus(toPower[value] - toPower[a]), exponent};
         }
 
         bool operator==(const int a) const { return a == value; }
@@ -208,8 +209,12 @@ namespace numsys{
             if (a == 0) {
                 throw std::invalid_argument("Cannot divide by zero");
             }
-            value = toVector[modplus(toPower[value] - toPower[a])];
-            return *this;
+            else if(value == 0) return *this;
+            else
+            {
+                value = toVector[modplus(toPower[value] - toPower[a])];
+                return *this;
+            }
         }
 
         // GF2 -- GF2 assignment operators
@@ -232,8 +237,12 @@ namespace numsys{
             if (a.value == 0) {
                 throw std::invalid_argument("Cannot divide by zero");
             }
-            value = toVector[modplus(toPower[value] - toPower[a.value])];
-            return *this;
+            else if(value == 0) return *this;
+            else
+            {
+                value = toVector[modplus(toPower[value] - toPower[a.value])];
+                return *this;
+            }
         }
 
         GF2 &operator^=(const int exp) {
@@ -260,7 +269,8 @@ namespace numsys{
             if (a.value == 0) {
                 throw std::invalid_argument("Cannot divide by zero");
             }
-            return {modplus(toPower[value] - toPower[a.value]), exponent};
+            else if(value == 0) return {0,integer};
+            else return {modplus(toPower[value] - toPower[a.value]), exponent};
         }
 
         GF2 operator^(const int e) const {

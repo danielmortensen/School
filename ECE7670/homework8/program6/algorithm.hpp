@@ -12,10 +12,78 @@ using GF2Rou = numsys::GF2<numsys::rouToDeg<N>()>;
 using cint32 = const int32_t&;
 
 namespace alg {
+    const uint32_t N_BIT_PER_PACKET = 32;
+    template <class T, class Func>
+    void xgcd(const T &a, const T &b, T &g, T &s, T &t, Func isDone)
+    {
+        T ri0{0};
+        T ri1{b};
+        T ri2{a};
+        T si0{0};
+        T si1{0};
+        T si2{1};
+        T ti0{0};
+        T ti1{1};
+        T ti2{0};
+        T qi0{0};
+        T stop{0};
+        do{
+            qi0 = ri2/ri1;
+            ri0 = ri2 - qi0*ri1;
+            si0 = si2 - qi0*si1;
+            ti0 = ti2 - qi0*ti1;
 
-    enum decodemethod{
-        ReedSolomon, BCH
-    };
+            // update values
+            ri2 = ri1; ri1 = ri0;
+            ti2 = ti1; ti1 = ti0;
+            si2 = si1; si1 = si0;
+        }while(!isDone(ri0));
+        g = ri2; s = si2; t = ti2;
+    }
+
+    template<class T>
+    void sugiyama(const int nInput, const T input[], polynomialT<T>& g, polynomialT<T>& s, polynomialT<T>& t)
+    {
+        // instantiate our x^n polynomial
+        auto coefA = new T[nInput + 1]{};
+        coefA[nInput] = T{1};
+        polynomialT<T> a(nInput, coefA);
+
+        // instantiate our data polynomial
+        polynomialT<T> b(nInput - 1, input);
+
+        // compute the extended Euclidean algorithm
+        auto temp = [&](polynomialT<T> in) ->bool{ return in.degree < (nInput/2) - 1;};
+        xgcd(a,b,g,s,t,temp);
+        g/=t[0];
+        s/=t[0];
+        t/=t[0];
+    }
+    template<class T>
+    void sugiyama(const T* input, const int nInput, T* output, int& nOutput, T* g, int& nG, T* s, int& nS)
+    {
+        polynomialT<T> gPol;
+        polynomialT<T> sPol;
+        polynomialT<T> tPol;
+        sugiyama(nInput, input,gPol, sPol, tPol);
+        nOutput = tPol.getdegree() + 1;
+        nG = gPol.getdegree() + 1;
+        nS = sPol.getdegree() + 1;
+        for(int i = 0; i <= gPol.getdegree(); i++){g[i] = gPol[i];}
+        for(int i = 0; i <= sPol.getdegree(); i++){s[i] = sPol[i];}
+        for(int i = 0; i <= tPol.getdegree(); i++){output[i] = tPol[i];}
+    }
+    template<class T>
+    void sugiyama(const T* input, const int& nInput, T* output, int& nOutput)
+    {
+        int nG = 0;
+        int nS = 0;
+        T* g = new T[nInput];
+        T* s = new T[nInput];
+        sugiyama(input,nInput,output,nOutput,g,nG,s,nS);
+    }
+
+
 
     template<uint32_t nSymbol = 2, class T>
     polynomialT<T> berlekampmassy(const T *s, int n) {
@@ -184,23 +252,24 @@ namespace alg {
         auto base{beta<N>()};
         auto currBeta{beta<N>()^b};
         const uint32_t mask{(1 << D) - 1};
-        const uint32_t nSymbolPerPacket = 32/D;
-        const uint32_t nPacket = ((nData/32) + (((nData/32)*32) != nData)) + 1;
-        uint32_t iBeta = 0;
+        const uint32_t nSymbolPerPacket = N_BIT_PER_PACKET/D;
+        const uint32_t nPacket = (((nData*D)/N_BIT_PER_PACKET) + (((nData/N_BIT_PER_PACKET)*N_BIT_PER_PACKET) != nData));
+        uint32_t iBeta;
         for(int iSyndrome = 0; iSyndrome < nErrorCapacity*2; iSyndrome++)
         {
+            iBeta = 0;
             for(int iPacket= 0; iPacket < nPacket; iPacket++)
             {
                 auto working = data[iPacket];
                 for(int iSymbol= 0; iSymbol < nSymbolPerPacket; iSymbol++)
                 {
                     auto sample = GF2Rou<N>{working&mask};
-                    if(sample == 0) continue;
-                    else  s[iSyndrome] += sample*(currBeta^(iBeta));
+                    if(sample != 0) {s[iSyndrome] += sample*(currBeta^(iBeta)); }
                     working >>= D;
                     iBeta++;
                 }
             }
+            std::cout<<std::endl<<std::endl;
             currBeta*=base;
         }
     }
@@ -241,43 +310,266 @@ namespace alg {
         }
     }
 
-
     template<uint32_t nCode, uint32_t nSymbol>
-    void decode(uint32_t* data, const uint32_t& nDataSymbol, const int nErrorCapacity, const uint32_t b=1)
+    void decodeRs(uint32_t* data, const uint32_t& nDataSymbol, const int nErrorCapacity, const uint32_t b=1)
     {
         // preallocate and initialize
         int nSyndrome = nErrorCapacity*2;
         GF2Rou<nCode>::set(numsys::viewmode,numsys::power);
 
         // compute syndrome values
-        GF2Rou<nCode> s[nSyndrome]={0};
+        auto s = new GF2Rou<nCode>[nSyndrome]();
         computesyndrome<nCode,nSymbol>(data,nDataSymbol, nErrorCapacity, s);
 
+        // if there are no errors, terminate
+        int nError{0};
+        for(int i = 0; i < nSyndrome; i++)
+        {
+            nError += (s[i] != 0);
+        }
+        if(nError == 0) return;
+
         // compute error-locator polynomial
-        GF2Rou<nCode> errLocPoly[nSyndrome] = {0};
+        auto errLocPoly = new GF2Rou<nCode>[nSyndrome]();
         int nErrLocPoly{0};
+//        sugiyama(s,nSyndrome,errLocPoly,nErrLocPoly);
         berlekampmassy<nSymbol>(s,nSyndrome,errLocPoly,nErrLocPoly);
 
         // compute error locations
-        GF2Rou<nCode> errLoc[nSyndrome] = {}; int nErrLoc{0};
+        std::cout<<std::endl;
+        auto errLoc = new GF2Rou<nCode>[nSyndrome]();
+        int nErrLoc{0};
         chiensearch(errLocPoly,nErrorCapacity*2,errLoc,nErrLoc);
-        for(auto& d : errLoc){d = d^(-1);}
+        for(int i = 0; i < nErrLoc; i++){errLoc[i] = errLoc[i]^(-1);}
 
         // compute error values
-        GF2Rou<nCode> corrected[nErrLoc]{0};
+        auto corrected = new GF2Rou<nCode>[nErrLoc]();
         forney<nCode>(errLocPoly, nErrLocPoly, s, nSyndrome, errLoc, nErrLoc, corrected);
 
         // apply corrections
-        const uint32_t nBitPerSymbol{numsys::rouToDeg<nCode>()};
-        const uint32_t symbolPerPacket{32/nBitPerSymbol};
+        const uint32_t symbolPerPacket{N_BIT_PER_PACKET/nSymbol};
         uint32_t loc, packetLoc, bitLoc;
         for(int iErr = 0; iErr < nErrLoc; iErr++)
         {
             loc = errLoc[iErr].exp();
             packetLoc = loc/symbolPerPacket;
-            bitLoc = (loc - packetLoc*symbolPerPacket)*nBitPerSymbol;
+            bitLoc = (loc - packetLoc*symbolPerPacket)*nSymbol;
             data[packetLoc]^=(corrected[iErr].value << bitLoc);
         }
+    }
+
+    //toPacketIdx
+//    template<uint32_t nCode, uint32_t nInput, uint32_t b=1>
+    polynomialT<GF2Rou<15>>toRsGenerator()
+    {
+        const uint32_t nCode = 15;
+        const uint32_t nInput = 5;
+        const uint32_t b = 1;
+
+        auto r = beta<nCode>();
+        const GF2Rou<nCode> t[] = {0,1};
+        const polynomialT<GF2Rou<nCode>> x{1,t};
+        auto generator = polynomialT<GF2Rou<nCode>>(1);
+        for(int i=0; i < (nCode-nInput); i++){generator*=(x + (r^(b + i)));}
+    }
+
+    template<uint32_t nBitPerSymbol>
+    uint32_t toPacketIdx(uint32_t symbolIdx)
+    {
+        return (symbolIdx*nBitPerSymbol)/N_BIT_PER_PACKET;
+    }
+
+    template<uint32_t nBitPerSymbol>
+    uint32_t toShiftIdx(uint32_t symbolIdx)
+    {
+        return ((symbolIdx*nBitPerSymbol)%N_BIT_PER_PACKET);
+    }
+
+    template<uint32_t nCode, uint32_t nInput>
+    uint32_t toErrorCapacity()
+    {
+        return (nCode - nInput)/2;
+    }
+    template<class T>
+    T* multpoly(T* first, int degFirst, T* second, int degSecond, T* output)
+    {
+        auto w0 = degFirst < degSecond?first:second;
+        auto w1 = degFirst >= degSecond?first:second;
+        auto nw0 = degFirst < degSecond?degFirst + 1:degSecond+1;
+        auto nw1 = degFirst >= degSecond?degFirst+1:degSecond+1;
+        for(int k = 0; k < nw1+ nw0 - 1; k++)
+        {
+            output[k] = T{0};
+            for(int i = std::max(0,k - nw1 + 1); i < std::min(nw0,k+1); i++)
+            {
+                 output[k] += w0[i]*w1[k-i];
+            }
+        }
+    }
+    //toShiftIdx
+    template<uint32_t nCodeSymbol>
+    uint32_t iSymToValue(const uint32_t* input, uint32_t idx)
+    {
+        const uint32_t nBitPerSymbol{numsys::rouToDeg<nCodeSymbol>()};
+        const int bitIdx = idx*nBitPerSymbol;
+        const int iPacket = (bitIdx/N_BIT_PER_PACKET);
+        const int iShift = bitIdx - (iPacket*N_BIT_PER_PACKET);
+        const int thresh = N_BIT_PER_PACKET - nBitPerSymbol;
+        const uint32_t mask ((1 << nBitPerSymbol) - 1);
+        uint32_t data = (input[iPacket] >> iShift)&mask;
+        if(iShift > thresh)
+        {
+            data |= (input[iPacket+1] & ((1 << (N_BIT_PER_PACKET - iShift)) - 1));
+        }
+        return data;
+    }
+
+    template<uint32_t nCodeSymbol>
+    uint32_t storesymbol(uint32_t src, uint32_t* dest, uint32_t idx)
+    {
+        const uint32_t nBitPerSymbol{numsys::rouToDeg<nCodeSymbol>()};
+        const int bitIdx = nBitPerSymbol*idx;
+        const int iPacket = (bitIdx/N_BIT_PER_PACKET);
+        const int iShift = bitIdx - (iPacket*N_BIT_PER_PACKET);
+        const int thresh = N_BIT_PER_PACKET - nBitPerSymbol;
+        dest[iPacket] |= (src << iShift);
+        if(iShift > thresh)
+        {
+            dest[iPacket + 1] = src  >> (nBitPerSymbol - (N_BIT_PER_PACKET - iShift));
+        }
+
+    }
+    template<class T>
+    void addpoly(T* poly1, T* poly2, uint32_t nPoly, T*poly3=nullptr)
+    {
+        if(poly3 == nullptr) poly3 = poly1;
+        for(int i = 0; i < nPoly; i++)
+        {
+            poly3[i] = poly1[i] + poly2[i];
+        }
+
+    }
+    template<class T>
+    void shiftpoly(T* poly1, int nPoly, int shift, T*poly2=nullptr)
+    {
+        if(poly2 == nullptr) poly2 = poly1;
+        if(shift > 0)
+        {
+            const int base1 = nPoly + shift - 1;
+            const int base2 = nPoly - 1;
+            for(int i = base1; i >= shift; i--)
+            {
+                poly2[i] = poly1[i - shift];
+            }
+            for(int i = 0; i < shift; i++)
+            {
+                poly2[i] = 0;
+            }
+        }
+        else if(shift == 0) return;
+        else
+        {
+            std::cerr << "shiftpoly not implemented for negative shifts." << std::endl;
+            exit(-1);
+        }
+    }
+
+    template<class T>
+    void multpoly(T* poly, int nPoly, T coef, T* result=nullptr)
+    {
+        if(result == nullptr) result = poly;
+         for(int i = 0; i < nPoly; i++)
+         {
+             result[i] = poly[i]*coef;
+         }
+    }
+    template<class T>
+    void divpoly(T* poly, int nPoly, T coef, T* result=nullptr)
+    {
+        if(result==nullptr) result=poly;
+        for(int i = 0; i < nPoly; i++)
+        {
+            result[i] = poly[i]/coef;
+        }
+    }
+    template<class T>
+    void subpoly(T* poly, T* poly2, int nPoly, T* result=nullptr)
+    {
+        if(result==nullptr) result = poly;
+        for(int i = 0; i < nPoly; i++)
+        {
+            result[i] = poly[i] - poly2[i];
+        }
+    }
+    template<class T> // assumes the modulus polynomial is monic
+    void modpoly(T* poly, int nPoly, T* mod, int nMod, T* result=nullptr)
+    {
+
+        //format result memory
+        if(result==nullptr) result=poly;
+        else
+        {
+            for(int i = 0; i < nPoly; i++) result[i] = poly[i];
+        }
+        auto temp = new T[nPoly]();
+        for(int i = nPoly - 1; i >= nMod - 1; i--)
+        {
+            multpoly(mod,nMod,result[i],temp);
+            shiftpoly(temp,nMod,i - nMod + 1);
+            subpoly(result,temp, i + 1);
+        }
+
+        //cleanup
+        delete[] temp;
+    }
+
+    template<uint32_t nCode, uint32_t nInput, uint32_t b=1>
+    void encodeRs(const uint32_t* message, const uint32_t& nMessage, uint32_t* codeword, uint32_t& nCodeword)
+    {
+        GF2Rou<nCode>::set(numsys::viewmode,numsys::power);
+
+        // compute generator
+        const uint32_t nBit{numsys::rouToDeg<nCode>()};
+        auto r = beta<nCode>();
+        auto generator1 = new GF2Rou<nCode>[nCode-nInput + 1](); generator1[0] = 1;
+        auto generator2 = new GF2Rou<nCode>[nCode-nInput + 1];
+
+        GF2Rou<nCode> x[2] = {1,1};
+        for(int i=0; i < (nCode-nInput); i++){
+            x[0] *= r;
+            multpoly(x,1, generator1, i, generator2);
+            auto temp = generator1;
+            generator1=generator2;
+            generator2 = temp;
+        }
+
+        // compute codeword
+        GF2Rou<nCode> inpoly[nCode] = {0};
+        GF2Rou<nCode> inter[nCode] = {0};
+        GF2Rou<nCode> outpoly[nCode] = {0};
+        nCodeword = 0;
+        for(int i = 0; i < nMessage; i+=nInput)
+        {
+            // populate polynomial
+            for(int j = i; j < i + nInput; j++)
+            {
+                inpoly[(j - i)] = iSymToValue<nCode>(message,j);
+            }
+
+            // compute codeword
+            shiftpoly(inpoly,nInput,nCode-nInput,inter);
+            modpoly(inter,nCode,generator1,nCode-nInput + 1,outpoly);
+            addpoly(outpoly,inter,nCode);
+
+            // export codeword
+            for(int j = nCodeword; j < (nCodeword + nCode); j++)
+            {
+                storesymbol<nCode>(outpoly[j - nCodeword].value,codeword,j);
+            }
+            nCodeword+=nCode;
+        }
+        delete[] generator1;
+        delete[] generator2;
     }
 }
 
