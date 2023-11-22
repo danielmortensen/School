@@ -36,19 +36,6 @@ int main()
 
     }
 
-    {
-//        uint32_t m[2] = {};
-//        m[0] = 0b1010001110000110000100100101;
-//        m[1] = 0b0000000000000000000000000100;
-//        uint32_t r[2];
-//        r[0] = 0b00100101001001101000110101000101;
-//        r[1] = 0b00000110111110100011100001100010;
-//
-//        const int N_CODE = 15;
-//        const int N_BIT_PER_SYMBOL{numsys::rouToDeg<N_CODE>()};
-//        alg::decodeRs<N_CODE,N_BIT_PER_SYMBOL>(r,15,3);
-//        std::cout<<"temp"<<std::endl;
-    }
     /* Implement a Reed-Solomon decoder for primitive, narrow-sense codes.
        Use the Berlekamp-Massey algorithm to find lambda(x), followed by
        the Chien search to find the error locators and the Forney algorithm
@@ -76,13 +63,25 @@ int main()
              alg::storesymbol<255>(1,codeword,(loc1));
              alg::storesymbol<255>(1,codeword,(loc2));
 
+             // test
              alg::decodeRs<255,numsys::rouToDeg<255>()>(codeword,N_CODE,ERR_CAPACITY);
-             for(int j = 0; j < 8; j++)
+
+             // verify success
+             for(int j = 0; j < 64; j++)
              {
                  assert(codeword[j] == 0);
              }
          }
     }
+
+    {
+        uint32_t r[2];
+        r[0] = 0b00100101001001101000110101000101;
+        r[1] = 0b00000110111110100011100001100010;
+        alg::decodeRs<15,4>(r,15,3);
+    }
+
+
 
 
     //GF2Rou<N_CODE>::set(numsys::viewmode,numsys::power);

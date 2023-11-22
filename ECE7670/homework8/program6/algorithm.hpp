@@ -16,29 +16,36 @@ namespace alg {
     template <class T, class Func>
     void xgcd(const T &a, const T &b, T &g, T &s, T &t, Func isDone)
     {
-        T ri0{0};
-        T ri1{b};
-        T ri2{a};
-        T si0{0};
-        T si1{0};
-        T si2{1};
-        T ti0{0};
-        T ti1{1};
-        T ti2{0};
-        T qi0{0};
-        T stop{0};
-        do{
-            qi0 = ri2/ri1;
-            ri0 = ri2 - qi0*ri1;
-            si0 = si2 - qi0*si1;
-            ti0 = ti2 - qi0*ti1;
+        std::cout<<a<<std::endl;
+        std::cout<<b<<std::endl;
+        T rim2{0};
+        T rim1{a};
+        T rim0{b};
+        T sim2{0};
+        T sim1{1};
+        T sim0{0};
+        T tim2{0};
+        T tim1{0};
+        T tim0{1};
+        int i = 0;
+        while(!isDone(rim0)) {
 
-            // update values
-            ri2 = ri1; ri1 = ri0;
-            ti2 = ti1; ti1 = ti0;
-            si2 = si1; si1 = si0;
-        }while(!isDone(ri0));
-        g = ri2; s = si2; t = ti2;
+            //update values for next loop
+            i = i+1;
+            rim2 = rim1;
+            rim1 = rim0;
+            sim2 = sim1;
+            sim1 = sim0;
+            tim2 = tim1;
+            tim1 = tim0;
+
+            // compute next set of values
+            auto qi = rim2/rim1;
+            rim0 = rim2 - qi*rim1;
+            sim0 = sim2 - qi*sim1;
+            tim0 = tim2 - qi*tim1;
+        }
+        g = rim0; s = sim0; t = tim0;
     }
 
     template<class T>
@@ -53,7 +60,7 @@ namespace alg {
         polynomialT<T> b(nInput - 1, input);
 
         // compute the extended Euclidean algorithm
-        auto temp = [&](polynomialT<T> in) ->bool{ return in.degree < (nInput/2) - 1;};
+        auto temp = [&](polynomialT<T> in) ->bool{ return in.degree < (nInput/2);};
         xgcd(a,b,g,s,t,temp);
         g/=t[0];
         s/=t[0];
@@ -81,6 +88,8 @@ namespace alg {
         T* g = new T[nInput];
         T* s = new T[nInput];
         sugiyama(input,nInput,output,nOutput,g,nG,s,nS);
+        delete[] g;
+        delete[] s;
     }
 
 
@@ -258,6 +267,7 @@ namespace alg {
         for(int iSyndrome = 0; iSyndrome < nErrorCapacity*2; iSyndrome++)
         {
             iBeta = 0;
+
             for(int iPacket= 0; iPacket < nPacket; iPacket++)
             {
                 auto working = data[iPacket];
@@ -269,7 +279,7 @@ namespace alg {
                     iBeta++;
                 }
             }
-            std::cout<<std::endl<<std::endl;
+            std::cout<<s[iSyndrome] <<std::endl;
             currBeta*=base;
         }
     }
@@ -308,6 +318,7 @@ namespace alg {
             }
             e[i] = -(xErrEval/(xDErrLoc*((errLoc[i])^(b-1))));
         }
+        delete[] dErrLocPoly;
     }
 
     template<uint32_t nCode, uint32_t nSymbol>
@@ -331,12 +342,21 @@ namespace alg {
 
         // compute error-locator polynomial
         auto errLocPoly = new GF2Rou<nCode>[nSyndrome]();
+        auto errLocPoly2 = new GF2Rou<nCode>[nSyndrome]();
+        int nErrLocPoly2{0};
         int nErrLocPoly{0};
-//        sugiyama(s,nSyndrome,errLocPoly,nErrLocPoly);
-        berlekampmassy<nSymbol>(s,nSyndrome,errLocPoly,nErrLocPoly);
+        sugiyama(s,nSyndrome,errLocPoly,nErrLocPoly);
+        berlekampmassy<nSymbol>(s,nSyndrome,errLocPoly2,nErrLocPoly2);
+        for(int i = 0; i < nSyndrome; i++)
+        {
+            std::cout<< "sugiyama["<<i<<"] = " << errLocPoly[i] << " berlekamp[" << i << "] = " << errLocPoly2[i] <<std::endl;
+            if(errLocPoly[i] != errLocPoly2[i])
+            {
+                std::cout<<"problem"<<std::endl;
+            }
+        }
 
         // compute error locations
-        std::cout<<std::endl;
         auto errLoc = new GF2Rou<nCode>[nSyndrome]();
         int nErrLoc{0};
         chiensearch(errLocPoly,nErrorCapacity*2,errLoc,nErrLoc);
@@ -356,6 +376,11 @@ namespace alg {
             bitLoc = (loc - packetLoc*symbolPerPacket)*nSymbol;
             data[packetLoc]^=(corrected[iErr].value << bitLoc);
         }
+        delete[] s;
+        delete[] corrected;
+        delete[] errLoc;
+        delete[] errLocPoly;
+        delete[] errLocPoly2;
     }
 
     //toPacketIdx
