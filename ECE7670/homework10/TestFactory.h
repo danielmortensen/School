@@ -90,15 +90,7 @@ public:
             }
         }
     }
-    static uint32_t toint(std::vector<uint32_t> input)
-    {
-        uint32_t output{0};
-        for(uint32_t iInput = 0; iInput < input.size(); iInput++)
-        {
-            output |= input[iInput] << iInput;
-        }
-        return output;
-    }
+
     template<class T>
     std::vector<std::vector<T>> getCodewordStream()
     {

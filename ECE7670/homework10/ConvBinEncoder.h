@@ -80,6 +80,27 @@ public:
         initnum(inputnum);
         computeNumTotalState();
     }
+    static uint32_t toint(std::vector<uint32_t> input)
+    {
+        uint32_t output{0};
+        for(uint32_t iInput = 0; iInput < input.size(); iInput++)
+        {
+            output |= input[iInput] << iInput;
+        }
+        return output;
+    }
+
+    template<class T>
+    static std::vector<T> tovec(uint32_t data, uint32_t nData)
+    {
+        auto output = std::vector<T>(nData);
+        for(int i = 0; i < nData; i++)
+        {
+            output[i] = (data >> i)&1;
+        }
+        return output;
+    }
+
     void propagate(uint32_t data)
     {
         bool doOverflow;

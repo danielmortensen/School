@@ -21,10 +21,10 @@ int doTest()
     // loop parameters
     const auto truecodeword = Factory.template getCodewordStream<uint32_t>();
     for (int iMessage = 0; iMessage < message.size(); iMessage++){
-        auto m = TestFactory<Rational>::toint(message[iMessage]);
+        auto m = encoder.toint(message[iMessage]);
         encoder.propagate(m);
         auto c0 = encoder.getoutput();
-        auto c1 = TestFactory<Rational>::toint(truecodeword[iMessage]);
+        auto c1 = encoder.toint(truecodeword[iMessage]);
         assert(c0 == c1);
     }
 
