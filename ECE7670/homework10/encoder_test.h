@@ -24,6 +24,8 @@ int doTest()
         auto m = encoder.toint(message[iMessage]);
         auto c0 = encoder.getoutput(m);
         encoder.propagate(m);
+        auto s = encoder.getstate();
+        encoder.setstate(s);
         auto c1 = encoder.toint(truecodeword[iMessage]);
         assert(c0 == c1);
     }

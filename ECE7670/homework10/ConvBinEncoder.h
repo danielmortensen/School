@@ -192,7 +192,7 @@ public:
             {
                 nDeg = alldeg[iInput][iOutput];
                 output |= (currstate[iInput][iOutput])  << iShift;
-                iShift += (nDeg + 1);
+                iShift += nDeg;
             }
         }
         return output;
