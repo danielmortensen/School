@@ -22,8 +22,8 @@ int doTest()
     const auto truecodeword = Factory.template getCodewordStream<uint32_t>();
     for (int iMessage = 0; iMessage < message.size(); iMessage++){
         auto m = encoder.toint(message[iMessage]);
+        auto c0 = encoder.getoutput(m);
         encoder.propagate(m);
-        auto c0 = encoder.getoutput();
         auto c1 = encoder.toint(truecodeword[iMessage]);
         assert(c0 == c1);
     }

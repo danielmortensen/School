@@ -33,7 +33,7 @@ private:
             for(auto val : row)
             {
                 num[iRow][iCol] = val;
-                numdeg[iRow][iCol] = (val == 0)?0:getdeg(val);
+                numdeg[iRow][iCol] = getdeg(val);
                 iCol++;
             }
             iCol=0;
@@ -47,9 +47,9 @@ private:
         {
             for(auto val : row)
             {
-                dendeg[iRow][iCol] = (val == 0)?0:getdeg(val);
+                dendeg[iRow][iCol] = getdeg(val);
                 denmsk[iRow][iCol] = (1 << (dendeg[iRow][iCol] + 1));
-                den[iRow][iCol] = (val & (denmsk[iRow][iCol] - 1));
+                den[iRow][iCol] = val;
                 iCol++;
             }
             iCol = 0;
@@ -63,7 +63,7 @@ private:
             for(int iOutput = 0; iOutput < nOutput; iOutput++)
             {
                 alldeg[iInput][iOutput] = std::max(dendeg[iInput][iOutput],numdeg[iInput][iOutput]);
-                nTotalState += (alldeg[iInput][iOutput] + 1);
+                nTotalState += (alldeg[iInput][iOutput]);
             }
         }
 
@@ -111,41 +111,38 @@ public:
             uint32_t currdata = mod2(data >> iIn);
             for(int iOut = 0; iOut < nOutput; iOut++)
             {
-                auto msk = (1 << (alldeg[iIn][iOut] + 1)) - 1;
-                //    std::cout<<"currstate: " << currstate[iIn][iOut] <<std::endl;
-                doOverflow = (((denmsk[iIn][iOut] >> 1)&currstate[iIn][iOut]) != 0);
-                //    std::cout<<"currstate: " << currstate[iIn][iOut] <<std::endl;
-                if(doOverflow) currstate[iIn][iOut] ^= den[iIn][iOut];
-                //     std::cout<<"currstate: " << currstate[iIn][iOut] <<std::endl;
+                uint32_t threshold = (1 << (alldeg[iIn][iOut] - 1));
+                doOverflow = (currstate[iIn][iOut] >= threshold);
                 currstate[iIn][iOut] <<=1;
-                //     std::cout<<"currstate: " << currstate[iIn][iOut] <<std::endl;
-                currstate[iIn][iOut] |= currdata;
-                //     std::cout<<"currstate: " << currstate[iIn][iOut] <<std::endl;
-                currstate[iIn][iOut] &= msk; //(denmsk[iIn][iOut] == 0)?0:(denmsk[iIn][iOut] - 1);
-                //    std::cout<<"currstate: " << currstate[iIn][iOut] << std::endl;
+                if(doOverflow) currstate[iIn][iOut] ^= den[iIn][iOut];
+                currstate[iIn][iOut] ^= currdata;
+                currstate[iIn][iOut] &= ((1 << (alldeg[iIn][iOut]))- 1);
             }
         }
     }
-    uint32_t getoutput()
+    uint32_t getoutput(uint32_t input)
     {
         uint32_t output{0};
-        uint32_t curroutput{0};
-        uint32_t feedback{0};
-        bool doFeedback{0};
-        uint32_t observation{0};
+        uint32_t curroutput;
         for(int iOut = 0; iOut < nOutput; iOut++)
         {
             curroutput = 0;
             for(int iIn = 0; iIn < nInput; iIn++)
             {
-                uint32_t currmsk{0xffffffff};
-                uint32_t msk0 = denmsk[iIn][iOut] - 1;
-                currmsk ^= msk0;
-                doFeedback = (currstate[iIn][iOut] & currmsk) != 0;
-                feedback = doFeedback?den[iIn][iOut]:0;
-                observation = currstate[iIn][iOut]^feedback;
+                // local variables
+                uint32_t currIn = mod2(input >> iIn);
+                uint32_t threshold = (1 << (alldeg[iIn][iOut] - 1));
+                uint32_t s = (currstate[iIn][iOut] << 1)^ currIn;
 
-                curroutput |= (binsum(observation & num[iIn][iOut]) << iIn);
+                // execute feedback
+                if((currstate[iIn][iOut]  >= threshold) & (den[iIn][iOut] != 0))
+                {
+                    s^=(1 << (alldeg[iIn][iOut]));
+                    s^=den[iIn][iOut];
+                }
+
+                // append results to output
+                curroutput |= (binsum((s& num[iIn][iOut])) << iIn);
             }
             output |= (binsum(curroutput) << iOut);
         }
@@ -158,7 +155,7 @@ public:
             for(int iOutput = 0; iOutput < nOutput; iOutput++)
             {
                 currstate[iInput][iOutput] = 0;
-                auto nShift = alldeg[iInput][iOutput] + 1;
+                auto nShift = alldeg[iInput][iOutput];
                 currstate[iInput][iOutput] |= (instate & ((1 << nShift) - 1));
                 instate >>= nShift;
             }
