@@ -208,6 +208,14 @@ public:
         }
         return output;
     }
+    constexpr uint32_t getNumInput()
+    {
+        return nInput;
+    }
+    constexpr uint32_t getNumOutput()
+    {
+        return nOutput;
+    }
     uint32_t getNumAllState() { return nTotalState; }
 
 };

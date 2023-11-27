@@ -40,43 +40,16 @@ void printpath(std::shared_ptr<node<nInput,nOutput>> p)
         curr = curr->parent;
     }
 }
-//template<uint32_t nInput, uint32_t nOutput>
-//std::vector<std::vector<uint32_t>> viturbi(ConvBinEncoder<nInput,nOutput> Encoder, std::vector<std::vector<uint32_t>> codeword, std::func)
-
-int main()
+template<uint32_t nInput, uint32_t nOutput>
+std::vector<std::vector<uint32_t>> viturbi(ConvBinEncoder<nInput,nOutput> Encoder, const std::vector<std::vector<double>>& received, std::function<double(const std::vector<uint32_t>&, const std::vector<std::vector<double>>&, const uint32_t& idx)> metric)
 {
-    //unit test the encoder
-    encoder_test();
-
-
-    // initialize parameters for Viturbi Algorithm
-    auto Factory = TestFactory<Polynomial>();
-    auto Encoder = Factory.getEncoder();
-    auto message = Factory.getMessageStream();
-    auto codeword = Factory.getCodewordStream<uint32_t>();
-
-    // define hamming metric
-     auto hamming = [&](const std::vector<uint32_t> given, const uint32_t idx){
-         double diff{0};
-         for(int i = 0; i < given.size(); i++)
-         {
-             diff += given[i]^codeword[idx][i];
-         }
-         return diff;
-     };
-
-/********************************************************************
- *                     Decoding Portion
- ********************************************************************/
     const uint32_t nState{Encoder.getNumAllState()};
-    const uint32_t nInput{TestFactory<Polynomial>::nInput()};
     const uint32_t nInputs{(1 << nInput)};
-    const uint32_t nOutput{TestFactory<Polynomial>::nOutput()};
     std::queue<std::shared_ptr<node<nInput,nOutput>>> nodequeue;
     nodequeue.emplace(std::make_shared<node<nInput,nOutput>>());
     std::vector<std::shared_ptr<node<nInput,nOutput>>> final;
     std::map<uint32_t,std::shared_ptr<node<nInput,nOutput>>>inQueue;
-    const uint32_t nPoint{uint32_t(codeword.size()/nInput)};
+    const uint32_t nPoint{uint32_t(received.size())};
     while(!nodequeue.empty())
     {
         //get next element from f
@@ -92,13 +65,13 @@ int main()
         {
             // propagate encoder with given input
             Encoder.setstate(curr->state);
-            auto curroutput = Encoder.tovec<uint32_t>(Encoder.getoutput(iInput),nOutput);
+            auto curroutput = Encoder.template tovec<uint32_t>(Encoder.getoutput(iInput),nOutput);
             Encoder.propagate(iInput);
             auto currstate = Encoder.getstate();
             auto key = (currstate  | ((iParent + 1) << nState));
 
-            //compute difference between current codeword and given codeword
-            auto diff = hamming(curroutput, iParent);
+            //compute difference between current received and given received
+            auto diff = metric(curroutput, received, iParent);
             auto pathlen = diff + curr->pathlength;
 
             // create child with: current state and path length
@@ -140,19 +113,93 @@ int main()
     }
 
     // traverse the best path to reconstruct the message
-        std::vector<std::vector<uint32_t>> decoded;
-        auto temp = best;
-        while(!temp->isTop)
+    std::vector<std::vector<uint32_t>> decoded;
+    auto temp = best;
+    while(!temp->isTop)
+    {
+        std::vector<uint32_t> m;
+        for(int iInput = 0; iInput < nInput; iInput++)
         {
-            std::vector<uint32_t> m;
-            for(int iInput = 0; iInput < nInput; iInput++)
-            {
-                auto val = (temp->input >> iInput)&1;
-                 m.push_back(val);
-            }
-            decoded.push_back(m);
-            temp = temp->parent;
+            auto val = (temp->input >> iInput)&1;
+            m.push_back(val);
         }
+        decoded.push_back(m);
+        temp = temp->parent;
+    }
+    std::reverse(decoded.begin(),decoded.end());
+    return decoded;
+}
+double hamming(const std::vector<uint32_t>& given, const std::vector<std::vector<double>>& codeword, const uint32_t& idx){
+    double diff{0};
+    for(int i = 0; i < given.size(); i++)
+    {
+        double dist1 = std::abs(codeword[idx][i] - 1);
+        double dist2 = std::abs(codeword[idx][i]);
+        uint32_t val = (dist1 < dist2)?1:0;
+        diff += given[i]^val;
+    }
+    return diff;
+};
+
+template<GeneratorType Gen>
+void testWithoutError()
+{
+    auto Factory = TestFactory<Gen>();
+    auto Encoder = Factory.getEncoder();
+    auto message = Factory.getMessageStream();
+    auto codeword = Factory.template getCodewordStream<double>();
+
+    // define hamming metric
+    auto decoded = viturbi(Encoder,codeword,&hamming);
+    for(int i = 0; i < message.size(); i++)
+    {
+        for(int j = 0; j < message[0].size(); j++)
+        {
+            assert(message[i][j] == decoded[i][j]);
+        }
+    }
+}
+template<GeneratorType Gen>
+void testWith1Error()
+{
+    auto Factory = TestFactory<Gen>();
+    auto Encoder = Factory.getEncoder();
+    auto message = Factory.getMessageStream();
+    auto codeword = Factory.template getCodewordStream<double>();
+
+    for(int ii = 0; ii < codeword.size(); ii++)
+    {
+        for(int jj = 0; jj < codeword[ii].size(); jj++)
+        {
+           auto received = codeword;
+
+            // insert error
+            received[ii][jj] = received[ii][jj] == 0?1:0;
+
+            //decode and validate
+            auto decoded = viturbi(Encoder,codeword,&hamming);
+            for(int i = 0; i < message.size(); i++)
+            {
+                for(int j = 0; j < message[0].size(); j++)
+                {
+                    assert(message[i][j] == decoded[i][j]);
+                }
+            }
+        }
+    }
+
+
+}
+int main()
+{
+    //unit test the encoder
+    encoder_test();
+
+    //unit test the decoder
+    testWithoutError<Polynomial>();
+    testWithoutError<Rational>();
+    testWith1Error<Polynomial>();
+    testWith1Error<Rational>();
 
     return 0;
 }
